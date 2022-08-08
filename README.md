@@ -2,7 +2,7 @@
 
 # Ansible Role - iRedMail
 
-WARNING: THIS ROLE IS NOT YET IN A STABLE STATE!!
+**WARNING: THIS ROLE IS NOT YET IN A STABLE STATE!!**
 
 Role to deploy iRedMail mail servers.
 
@@ -12,8 +12,8 @@ The installation script used by the repository is installing
 
 # REPLACE: GALAXY_ID & ROLE
 
-[![Ansible Galaxy](https://img.shields.io/ansible/role/GALAXY_ID)](https://galaxy.ansible.com/ansibleguy/ROLE)
-[![Ansible Galaxy Downloads](https://img.shields.io/badge/dynamic/json?color=blueviolet&label=Galaxy%20Downloads&query=%24.download_count&url=https%3A%2F%2Fgalaxy.ansible.com%2Fapi%2Fv1%2Froles%2FGALAXY_ID%2F%3Fformat%3Djson)](https://galaxy.ansible.com/ansibleguy/ROLE)
+[![Ansible Galaxy](https://img.shields.io/ansible/role/59937)](https://galaxy.ansible.com/ansibleguy/sw_iredmail)
+[![Ansible Galaxy Downloads](https://img.shields.io/badge/dynamic/json?color=blueviolet&label=Galaxy%20Downloads&query=%24.download_count&url=https%3A%2F%2Fgalaxy.ansible.com%2Fapi%2Fv1%2Froles%2F59937%2F%3Fformat%3Djson)](https://galaxy.ansible.com/ansibleguy/sw_iredmail)
 
 
 **Tested:**
