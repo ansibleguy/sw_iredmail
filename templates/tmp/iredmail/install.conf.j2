@@ -1,0 +1,52 @@
+# {{ ansible_managed }}
+
+# switches for main functionality
+export USE_IREDADMIN='{{ 'YES' if IRM_CONFIG.manage.ired_admin else 'NO' }}'
+export USE_MANAGESIEVE='{{ 'YES' if IRM_CONFIG.manage.managesieve else 'NO' }}'
+export USE_NFTABLES='{{ 'YES' if IRM_CONFIG.manage.nftables else 'NO' }}'
+export USE_NETDATA='{{ 'YES' if IRM_CONFIG.manage.netdata else 'NO' }}'
+export USE_ROUNDCUBE='{{ 'YES' if IRM_CONFIG.manage.roundcube else 'NO' }}'
+export USE_SOGO='{{ 'YES' if IRM_CONFIG.manage.sogo else 'NO' }}'
+export USE_FAIL2BAN='{{ 'YES' if IRM_CONFIG.manage.fail2ban else 'NO' }}'
+export IREDMAIL_USE_PHP='{{ 'YES' if IRM_CONFIG.manage.php else 'NO' }}'
+export WEB_SERVER='NGINX'  # only supported one
+{% if not IRM_CONFIG.manage.roundcube and not IRM_CONFIG.manage.ired_admin and not IRM_CONFIG.manage.sogo and not IRM_CONFIG.manage.netdata %}
+export DISABLE_WEB_SERVER='YES'
+{% else %}
+export DISABLE_WEB_SERVER='NO'
+{% endif %}
+
+# basics
+export FIRST_DOMAIN='{{ IRM_CONFIG.domain }}'
+export DOMAIN_ADMIN_NAME='{{ IRM_CONFIG.config.admin_user }}'
+export DOMAIN_ADMIN_PASSWD_PLAIN='{{ IRM_CONFIG.config.admin_pwd }}'
+export STORAGE_BASE_DIR='{{ IRM_CONFIG.config.path.storage }}'
+export BACKUP_DIR='{{ IRM_CONFIG.config.path.backup }}'
+export SSL_CIPHERS='{{ IRM_CONFIG.config.ciphers }}'
+export USE_RSYSLOG='{{ 'YES' if IRM_CONFIG.config.syslog else 'NO' }}'
+
+# users
+export SYS_USER_VMAIL_UID='{{ IRM_CONFIG.user.vmail_uid }}'
+export SYS_USER_VMAIL_GID='{{ IRM_CONFIG.user.vmail_gid | default(IRM_CONFIG.user.vmail_uid) }}'
+export SYS_USER_IREDADMIN_UID='{{ IRM_CONFIG.user.ired_admin_uid }}'
+export SYS_USER_IREDADMIN_GID='{{ IRM_CONFIG.user.ired_admin_gid | default(IRM_CONFIG.user.ired_admin_uid) }}'
+export SYS_USER_IREDAPD_UID='{{ IRM_CONFIG.user.ired_apd_uid }}'
+export SYS_USER_IREDAPD_GID='{{ IRM_CONFIG.user.ired_apd_gid | default(IRM_CONFIG.user.ired_apd_uid) }}'
+export SYS_USER_MLMMJ_UID='{{ IRM_CONFIG.user.mlmmj_uid }}'
+export SYS_USER_MLMMJ_GID='{{ IRM_CONFIG.user.mlmmj_gid | default(IRM_CONFIG.user.mlmmj_uid) }}'
+export SYS_USER_NETDATA_UID='{{ IRM_CONFIG.user.netdata_uid }}'
+export SYS_USER_NETDATA_GID='{{ IRM_CONFIG.user.netdata_gid | default(IRM_CONFIG.user.netdata_uid) }}'
+
+# backend/database config
+export BACKEND='{{ IRM_CONFIG.database.type }}'
+export BACKEND_ORIG='{{ IRM_CONFIG.database.type }}'
+export MYSQL_SERVER_ADDRESS='{{ IRM_CONFIG.database.host }}'
+export MYSQL_SERVER_PORT='{{ IRM_CONFIG.database.settings.port }}'
+export MYSQL_ROOT_USER='{{ IRM_CONFIG.database.user }}'
+export MYSQL_ROOT_PASSWD='{{ IRM_CONFIG.database.pwd }}'
+export USE_EXISTING_MYSQL='YES'
+export INITIALIZE_SQL_DATA='YES'
+export ENABLE_BACKEND_OPENLDAP='NO'
+export ENABLE_BACKEND_PGSQL='NO'
+
+#EOF

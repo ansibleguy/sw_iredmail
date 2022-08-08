@@ -1,0 +1,24 @@
+---
+
+galaxy_info:
+  author: 'AnsibleGuy <guy@ansibleguy.net>'
+  readme: 'README.md'
+  license: 'GPLv3'
+  repository: 'https://github.com/ansibleguy/sw_iredmail'
+  issue_tracker_url: 'https://github.com/ansibleguy/sw_iredmail/issues'
+  github_branch: 'stable'
+  min_ansible_version: 2.9.0
+  description: 'Role to install iRedMail mail server on a linux server'
+  platforms:
+    - name: Debian
+      versions:
+        - bullseye
+  galaxy_tags:
+    - 'iRedMail'
+    - 'Postfix'
+    - 'Dovecot'
+    - 'mailserver'
+    - 'mailing'
+    - 'clamav'
+
+collections: []

@@ -1,0 +1,28 @@
+---
+
+- name: iRedMail | Debian | Setting up MariaDB instance
+  ansible.builtin.include_role:
+    name: ansibleguy.infra_mariadb
+  vars:
+    mariadb:
+      instances:
+        iredmail: "{{ IRM_MARIADB_INSTANCE }}"
+  when: IRM_CONFIG.manage.database
+  tags: database
+
+- name: iRedMail | Debian | Set localhost name resolution
+  ansible.builtin.lineinfile:
+    dest: '/etc/hosts'
+    regexp: '^127.0.0.1(.*)$'
+    line: "127.0.0.1 {{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }} {{ inventory_hostname }} localhost"
+    state: present
+    backrefs: yes
+
+- name: iRedMail | Debian | Checking if mailserver is initialized
+  ansible.builtin.stat:
+    path: "{{ IRM_CONFIG.config.path.storage }}/test"
+  register: irm_initialized
+
+- name: iRedMail | Debian | Running installation tasks
+  ansible.builtin.import_tasks: install.yml
+  when: not irm_initialized.stat.exists

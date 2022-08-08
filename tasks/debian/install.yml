@@ -1,0 +1,58 @@
+---
+
+- name: iRedMail | Debian | Creating directories
+  ansible.builtin.file:
+    state: directory
+    path: "{{ item }}"
+  loop:
+    - "{{ IRM_HC.path_setup }}"
+    - "{{ IRM_CONFIG.config.path.storage }}"
+    - "{{ IRM_CONFIG.config.path.backup }}"
+
+- name: iRedMail | Debian | Install | Downloading & unpacking code
+  ansible.builtin.unarchive:
+    src: "{{ IRM_HC.download_url }}/{{ IRM_CONFIG.version }}.tar.gz"
+    dest: "{{ IRM_HC.path_setup }}/"
+    remote_src: yes
+
+- name: iRedMail | Debian | Install | Copying configuration
+  ansible.builtin.template:
+    src: 'templates/tmp/iredmail/install.conf.j2'
+    dest: "{{ IRM_HC.path_setup }}/iRedMail-{{ IRM_CONFIG.version }}/config"
+    mode: 0600
+
+- name: iRedMail | Debian | Install | Running installation script
+  ansible.builtin.command:
+    cmd: '/bin/bash iRedMail.sh'
+    timeout: 600
+  args:
+    chdir: "{{ IRM_HC.path_setup }}/iRedMail-{{ IRM_CONFIG.version }}"
+  environment:
+    AUTO_INSTALL_WITHOUT_CONFIRM: 'YES'
+    AUTO_USE_EXISTING_CONFIG_FILE: 'YES'
+  register: irm_installed
+
+- name: iRedMail | Debian | Install | Enabling postscreen
+  ansible.builtin.command:
+    cmd: '/bin/bash enable_postscreen.sh'
+  args:
+    chdir: "{{ IRM_HC.path_setup }}/iRedMail-{{ IRM_CONFIG.version }}/tools"
+  when: IRM_CONFIG.manage.postscreen
+
+- name: iRedMail | Debian | Install | Pulling setup TIPS
+  ansible.builtin.command:
+    cmd: '/usr/bin/cat iRedMail.tips'
+  args:
+    chdir: "{{ IRM_HC.path_setup }}/iRedMail-{{ IRM_CONFIG.version }}"
+  register: irm_setup_tips
+
+- name: iRedMail | Debian | Install | Displaying admin-credentials
+  ansible.builtin.debug:
+    msg: "Admin-User: '{{ IRM_CONFIG.config.admin_user }}',
+      Admin-Password: '{{ IRM_CONFIG.config.admin_pwd }}'"
+  when: irm_installed.changed
+
+- name: iRedMail | Debian | Install | Show setup TIPS
+  ansible.builtin.debug:
+    msg: "Setup TIPS: {{ irm_setup_tips.stdout }}"
+  when: irm_installed.changed

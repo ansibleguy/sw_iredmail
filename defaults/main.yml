@@ -1,0 +1,70 @@
+---
+
+random_pwd_length: '50'
+tmp_pwd_file_prefix: '/tmp/.ansibleguy.sw_iredmail'
+
+IRM_HC:
+  path_setup: '/tmp/iredmail'
+  download_url: 'https://github.com/iredmail/iRedMail/archive/refs/tags'
+
+iredmail: {}
+
+# default config => is overwritten by provided config
+default_irm:
+  version: '1.6.0'
+
+  manage:
+    ired_admin: true
+    managesieve: true
+    sogo: true
+    roundcube: true
+    fail2ban: true  # app-specific config: https://github.com/iredmail/iRedMail/tree/master/samples/fail2ban/filter.d
+    postscreen: true
+    nftables: false  # configure nftables firewall
+    netdata: false
+    php: false  # maybe needed if netdata is enabled
+    database: true  # if db should be created by this role
+
+  config:
+    admin_user: 'admin'
+    admin_pwd: "{{ lookup('password', tmp_pwd_file_prefix + '_admin chars=ascii_letters,digits length=' + random_pwd_length) }}"
+    path:
+      storage: '/var/vmail'
+      backup: '/var/backups'
+
+    debug: false
+    syslog: true
+    ciphers: 'EECDH+CHACHA20:EECDH+AESGCM:EDH+AESGCM:AES256+EECDH'
+
+  database:
+    settings:  # mariadb setting overrides
+      port: 3306  # ONLY CHANGE IF DB IS NOT MANAGED BY ROLE!
+
+    # ONLY CHANGE IF DB IS NOT MANAGED BY ROLE!
+    type: 'MYSQL'
+    host: '127.0.0.1'
+    user: 'iredmail_setup'
+    pwd: "{{ lookup('password', tmp_pwd_file_prefix + '_mysql chars=ascii_letters,digits length=' + random_pwd_length) }}"
+    update_password: 'always'  # or 'on_create'
+
+  user:
+    vmail_uid: 2000  # gid's will be the same
+    # vmail_gid: 2000  # but you COULD define them specifically
+    ired_admin_uid: 2001
+    ired_apd_uid: 2002
+    mlmmj_uid: 2003
+    netdata_uid: 2004
+
+IRM_CONFIG: "{{ default_irm | combine(iredmail, recursive=true) }}"
+
+IRM_MARIADB_INSTANCE: "{{ {
+  'users': {
+    IRM_CONFIG.database.user: {
+      'priv': '*.*:ALL',
+      'pwd': IRM_CONFIG.database.pwd,
+      'update_pwd': IRM_CONFIG.database.update_password
+    },
+  },
+  'settings': IRM_CONFIG.database.settings,
+  'socket': '/run/mysqld/mysqld_iredmail.sock'
+} }}"  # DO NOT CHANGE!
