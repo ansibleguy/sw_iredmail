@@ -453,7 +453,7 @@ Amavisd-new:
     * SQL Database:
         - Database name: amavisd
         - Database user: amavisd
-        - Database password: 
+        - Database password: PWD
 
 DNS record for DKIM support:
 
@@ -478,7 +478,7 @@ iRedAPD - Postfix Policy Server:
     * SQL database account:
         - Database name: iredapd
         - Username: iredapd
-        - Password: 
+        - Password: PWD
     * Configuration file:
         - /opt/iredapd/settings.py
     * Related files:
@@ -492,11 +492,11 @@ iRedAdmin - official web-based admin panel:
     * Web access:
         - URL: https://SRV.DOMAIN.TLD/iredadmin/
         - Username: admin@DOMAIN.TLD
-        - Password: 6N2UEOoLsIgJLnXjXc4swuAhF6a7rPHoxn7yUonfwf8WZY0M64
+        - Password: PWD
     * SQL database:
         - Database name: iredadmin
         - Username: iredadmin
-        - Password: 
+        - Password: PWD
 
 Roundcube webmail: /opt/www/roundcubemail-1.5.2
     * Config file: /opt/www/roundcubemail-1.5.2/config
@@ -508,7 +508,7 @@ Roundcube webmail: /opt/www/roundcubemail-1.5.2
     * SQL database account:
         - Database name: roundcubemail
         - Username: roundcube
-        - Password: 
+        - Password: PWD
     * Cron job:
         - Command: "crontab -l -u root"
 ```

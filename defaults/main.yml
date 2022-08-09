@@ -61,8 +61,7 @@ default_irm:
         org: 'AnsibleGuy'
 
   user:
-    vmail_uid: 2000  # gid's will be the same
-    # vmail_gid: 2000  # but you COULD define them specifically
+    vmail_uid: 2000
     ired_admin_uid: 2001
     ired_apd_uid: 2002
     mlmmj_uid: 2003
@@ -76,7 +75,7 @@ default_irm:
     #  global: https://github.com/iredmail/iRedMail/blob/master/conf/global
     # make sure strings are inside single quotes - per example: "'YES'"
     conf: {}
-     # override in config-files: https://github.com/iredmail/iRedMail/tree/master/conf
+    # override in config-files: https://github.com/iredmail/iRedMail/tree/master/conf
     sample: {}
      # override in sample-files: https://github.com/iredmail/iRedMail/tree/master/sample
 
@@ -127,15 +126,15 @@ default_overrides:
 
     # users
     SYS_USER_VMAIL_UID: "'{{ IRM_CONFIG.user.vmail_uid }}'"
-    SYS_USER_VMAIL_GID: "'{{ IRM_CONFIG.user.vmail_gid | default(IRM_CONFIG.user.vmail_uid) }}'"
+    SYS_USER_VMAIL_GID: "'{{ IRM_CONFIG.user.vmail_uid }}'"
     SYS_USER_IREDADMIN_UID: "'{{ IRM_CONFIG.user.ired_admin_uid }}'"
-    SYS_USER_IREDADMIN_GID: "'{{ IRM_CONFIG.user.ired_admin_gid | default(IRM_CONFIG.user.ired_admin_uid) }}'"
+    SYS_USER_IREDADMIN_GID: "'{{ IRM_CONFIG.user.ired_admin_uid }}'"
     SYS_USER_IREDAPD_UID: "'{{ IRM_CONFIG.user.ired_apd_uid }}'"
-    SYS_USER_IREDAPD_GID: "'{{ IRM_CONFIG.user.ired_apd_gid | default(IRM_CONFIG.user.ired_apd_uid) }}'"
+    SYS_USER_IREDAPD_GID: "'{{ IRM_CONFIG.user.ired_apd_uid }}'"
     SYS_USER_MLMMJ_UID: "'{{ IRM_CONFIG.user.mlmmj_uid }}'"
-    SYS_USER_MLMMJ_GID: "'{{ IRM_CONFIG.user.mlmmj_gid | default(IRM_CONFIG.user.mlmmj_uid) }}'"
+    SYS_USER_MLMMJ_GID: "'{{ IRM_CONFIG.user.mlmmj_uid }}'"
     SYS_USER_NETDATA_UID: "'{{ IRM_CONFIG.user.netdata_uid }}'"
-    SYS_USER_NETDATA_GID: "'{{ IRM_CONFIG.user.netdata_gid | default(IRM_CONFIG.user.netdata_uid) }}'"
+    SYS_USER_NETDATA_GID: "'{{ IRM_CONFIG.user.netdata_uid }}'"
 
     # cleanup
     AUTO_CLEANUP_RESTART_FIREWALL: "'{{ 'YES' if IRM_CONFIG.manage.nftables else 'NO' }}'"

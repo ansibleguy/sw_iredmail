@@ -48,12 +48,9 @@ You can see the changes in Systemd, packages and files in this document: [Transp
   
 
 * **Configuration**
-  * tbc
-
-
   * **Default config**:
     * Data directory: '/var/vmail'
-    * Local backups are created at: '/var/backups'
+    * Admin user: admin@DOMAIN.TLD
  
 
   * **Default opt-ins**:

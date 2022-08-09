@@ -33,9 +33,6 @@
   vars:
     irm_setup_base: "{{ IRM_HC.path.setup }}/iRedMail-{{ IRM_CONFIG.version }}"
 
-- debug:
-    var: default_overrides
-
 - name: iRedMail | Debian | Configuring Nginx webserver
   ansible.builtin.include_role:
     name: ansibleguy.infra_nginx
@@ -43,5 +40,5 @@
     nginx:
       sites:
         iredmail: "{{ IRM_NGINX }}"
-  tags: webserver
   when: IRM_CONFIG.manage.webserver
+  tags: webserver
