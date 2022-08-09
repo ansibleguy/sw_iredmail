@@ -1,58 +1,83 @@
 ---
 
-- name: iRedMail | Debian | Creating directories
+- name: iRedMail | Debian | Install | Checking if NFTables service is enabled
+  ansible.builtin.systemd:
+    name: 'nftables.service'
+    enabled: true
+  check_mode: true
+  register: irm_nftables_enabled
+
+- name: iRedMail | Debian | Install | Creating directories
   ansible.builtin.file:
     state: directory
     path: "{{ item }}"
+    mode: 0755
   loop:
-    - "{{ IRM_HC.path_setup }}"
-    - "{{ IRM_CONFIG.config.path.storage }}"
-    - "{{ IRM_CONFIG.config.path.backup }}"
+    - "{{ IRM_HC.path.setup }}"
+    - "{{ IRM_HC.path.setup_log }}"
+    - "{{ IRM_CONFIG.config.path_storage }}"
 
 - name: iRedMail | Debian | Install | Downloading & unpacking code
   ansible.builtin.unarchive:
     src: "{{ IRM_HC.download_url }}/{{ IRM_CONFIG.version }}.tar.gz"
-    dest: "{{ IRM_HC.path_setup }}/"
+    dest: "{{ IRM_HC.path.setup }}/"
     remote_src: yes
 
-- name: iRedMail | Debian | Install | Copying configuration
-  ansible.builtin.template:
-    src: 'templates/tmp/iredmail/install.conf.j2'
-    dest: "{{ IRM_HC.path_setup }}/iRedMail-{{ IRM_CONFIG.version }}/config"
-    mode: 0600
+- name: iRedMail | Debian | Install | Pushing configuration
+  ansible.builtin.import_tasks: config.yml
 
-- name: iRedMail | Debian | Install | Running installation script
-  ansible.builtin.command:
-    cmd: '/bin/bash iRedMail.sh'
-    timeout: 600
+- name: iRedMail | Debian | Install | Running installation script (this can take some time)
+  ansible.builtin.shell:
+    cmd: '/bin/bash iRedMail.sh |
+    tee -a {{ IRM_HC.path.setup_log }}/install_stdout.log'
   args:
-    chdir: "{{ IRM_HC.path_setup }}/iRedMail-{{ IRM_CONFIG.version }}"
+    chdir: "{{ irm_setup_base }}"
   environment:
     AUTO_INSTALL_WITHOUT_CONFIRM: 'YES'
     AUTO_USE_EXISTING_CONFIG_FILE: 'YES'
-  register: irm_installed
+  timeout: "{{ IRM_HC.install_timeout }}"
+  register: irm_install
+  ignore_errors: true
+  changed_when:
+    - "'< SKIP > Function: mysql_setup' not in irm_install.stdout"
+    - "'< SKIP > Function: postfix_setup' not in irm_install.stdout"
+    - "'< SKIP > Function: dovecot_setup' not in irm_install.stdout"
 
-- name: iRedMail | Debian | Install | Enabling postscreen
-  ansible.builtin.command:
-    cmd: '/bin/bash enable_postscreen.sh'
-  args:
-    chdir: "{{ IRM_HC.path_setup }}/iRedMail-{{ IRM_CONFIG.version }}/tools"
-  when: IRM_CONFIG.manage.postscreen
+- name: iRedMail | Debian | Install | Saving logs
+  ansible.builtin.copy:
+    src: "{{ irm_setup_base }}/{{ item }}"
+    dest: "{{ IRM_HC.path.setup_log }}/"
+    remote_src: yes
+    mode: 0640
+  loop:
+    - 'iRedMail.tips'
+    - 'runtime/install.status'
+    - 'runtime/install.log'
+    - 'runtime/pip3.log'
+    - 'runtime/pkg.install.log'
+  ignore_errors: true
 
-- name: iRedMail | Debian | Install | Pulling setup TIPS
-  ansible.builtin.command:
-    cmd: '/usr/bin/cat iRedMail.tips'
-  args:
-    chdir: "{{ IRM_HC.path_setup }}/iRedMail-{{ IRM_CONFIG.version }}"
-  register: irm_setup_tips
+- name: iRedMail | Debian | Install | Saving sql scripts
+  ansible.builtin.copy:
+    src: "{{ irm_setup_base }}/{{ item }}"
+    dest: "{{ IRM_HC.path.setup_log }}/"
+    remote_src: yes
+    mode: 0640
+  loop:
+    - 'runtime/init_vmail_db.sql'
+    - 'runtime/iredmail.sql'
+    - 'runtime/add_first_domain_and_user.sql'
+    - 'runtime/remote_grant_permission.sql'
+  ignore_errors: true
 
-- name: iRedMail | Debian | Install | Displaying admin-credentials
-  ansible.builtin.debug:
-    msg: "Admin-User: '{{ IRM_CONFIG.config.admin_user }}',
-      Admin-Password: '{{ IRM_CONFIG.config.admin_pwd }}'"
-  when: irm_installed.changed
+- name: iRedMail | Debian | Install | Handling error
+  ansible.builtin.import_tasks: install_error.yml
 
-- name: iRedMail | Debian | Install | Show setup TIPS
-  ansible.builtin.debug:
-    msg: "Setup TIPS: {{ irm_setup_tips.stdout }}"
-  when: irm_installed.changed
+- name: iRedMail | Debian | Install | Removing useless packages
+  ansible.builtin.apt:
+    name: "{{ IRM_HC.packages.absent }}"
+    state: absent
+
+- name: iRedMail | Debian | Install | Running post-install tasks
+  ansible.builtin.import_tasks: install_post.yml
+  when: irm_install.changed

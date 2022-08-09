@@ -1,0 +1,32 @@
+---
+
+- name: iRedMail | Debian | Install | Error | Pull installation progress
+  ansible.builtin.command:
+    cmd: '/usr/bin/cat install.status'
+  args:
+    chdir: "{{ irm_setup_base }}/runtime"
+  when:
+    - irm_install.failed is defined
+    - irm_install.failed
+  register: irm_install_status
+
+- name: iRedMail | Debian | Install | Error | Pull installation logs
+  ansible.builtin.command:
+    cmd: '/usr/bin/cat install.log'
+  args:
+    chdir: "{{ irm_setup_base }}/runtime"
+  when:
+    - irm_install.failed is defined
+    - irm_install.failed
+  register: irm_install_log
+
+- name: iRedMail | Debian | Install | Error | Showing errors
+  ansible.builtin.fail:
+    msg: "Installation FAILED! |
+    Installation status: {{ irm_install_status.stdout_lines }} |
+    Installation logs: {{ irm_install_log.stdout_lines }} |
+    Installation output: {{ irm_install.stdout_lines }} |
+    Log directory: {{ IRM_HC.path.setup_log }}"
+  when:
+    - irm_install.failed is defined
+    - irm_install.failed

@@ -1,0 +1,10 @@
+---
+
+- name: "iRedMail | Debian | Config | Override {{ override_file }} | Applying custom config"
+  ansible.builtin.lineinfile:
+    dest: "{{ irm_setup_base }}/conf/{{ override_file }}"
+    regexp: "^(\\s*)export {{ item.search }}"
+    line: "\\1export {{ item.replace }}"
+    state: present
+    backrefs: true
+  loop: "{{ override_lines }}"

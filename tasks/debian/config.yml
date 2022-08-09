@@ -1,0 +1,27 @@
+---
+
+- name: iRedMail | Debian | Config | Copying configuration
+  ansible.builtin.template:
+    src: 'templates/tmp/iredmail/install.conf.j2'
+    dest: "{{ irm_setup_base }}/config"
+    mode: 0600
+
+- name: iRedMail | Debian | Config | Applying custom config overrides
+  ansible.builtin.include_tasks: config_override_conf.yml
+  vars:
+    override_file: "{{ override.key }}"
+    override_lines: "{{ override.value }}"
+  loop_control:
+    loop_var: override
+  with_dict: "{{ IRM_OVERRIDES.conf }}"
+  no_log: true
+
+- name: iRedMail | Debian | Config | Applying custom sample overrides
+  ansible.builtin.include_tasks: config_override_sample.yml
+  vars:
+    override_file: "{{ override.key }}"
+    override_lines: "{{ override.value }}"
+  loop_control:
+    loop_var: override
+  with_dict: "{{ IRM_OVERRIDES.sample }}"
+  no_log: true

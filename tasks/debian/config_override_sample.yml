@@ -1,0 +1,10 @@
+---
+
+- name: "iRedMail | Debian | Config | Override {{ override_file }} | Applying custom sample"
+  ansible.builtin.lineinfile:
+    dest: "{{ irm_setup_base }}/samples/{{ override_file }}"
+    regexp: "^(\\s*){{ item.search }}"
+    line: "\\1{{ item.replace }}"
+    state: present
+    backrefs: true
+  loop: "{{ override_lines }}"

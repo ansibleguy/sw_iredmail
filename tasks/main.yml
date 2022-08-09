@@ -14,6 +14,18 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
+  delegate_to: localhost
+  become: false
+  changed_when: false
   loop:
     - "{{ tmp_pwd_file_prefix }}_admin"
-    - "{{ tmp_pwd_file_prefix }}_mysql"
+    - "{{ tmp_pwd_file_prefix }}_mysql_ph"
+    - "{{ tmp_pwd_file_prefix }}_mysql_vmail"
+    - "{{ tmp_pwd_file_prefix }}_mysql_vadm"
+    - "{{ tmp_pwd_file_prefix }}_mysql_sogo"
+    - "{{ tmp_pwd_file_prefix }}_mysql_iradm"
+    - "{{ tmp_pwd_file_prefix }}_mysql_iradb"
+    - "{{ tmp_pwd_file_prefix }}_mysql_rcm"
+    - "{{ tmp_pwd_file_prefix }}_mysql_ava"
+    - "{{ tmp_pwd_file_prefix }}_mysql_nd"
+    - "{{ tmp_pwd_file_prefix }}_mysql_f2b"

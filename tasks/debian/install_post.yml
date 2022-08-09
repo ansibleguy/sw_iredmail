@@ -1,0 +1,58 @@
+---
+
+- name: iRedMail | Debian | Post-Install | Enabling postscreen
+  ansible.builtin.command:
+    cmd: '/bin/bash enable_postscreen.sh'
+  args:
+    chdir: "{{ irm_setup_base }}/tools"
+  when: IRM_CONFIG.manage.postscreen
+
+- name: iRedMail | Debian | Post-Install | Disabling NFTables service if it was before
+  ansible.builtin.systemd:
+    name: 'nftables.service'
+    enabled: false
+    state: stopped
+  when:
+    - irm_nftables_enabled.changed
+    - not IRM_CONFIG.manage.nftables
+
+- name: iRedMail | Debian | Post-Install | Pulling setup TIPS
+  ansible.builtin.command:
+    cmd: '/usr/bin/cat iRedMail.tips'
+  args:
+    chdir: "{{ irm_setup_base }}"
+  register: irm_setup_tips
+
+- name: iRedMail | Debian | Post-Install | Pulling dkim public-key
+  ansible.builtin.command:
+    cmd: "/usr/bin/grep 'v=DKIM1' iRedMail.tips -A 7"
+  args:
+    chdir: "{{ irm_setup_base }}"
+  register: irm_dkim
+
+- name: iRedMail | Debian | Post-Install | Copying setup TIPS to controller
+  ansible.builtin.copy:
+    content: "{{ irm_setup_tips.stdout }}"
+    dest: "/tmp/{{ inventory_hostname }}_iRedMail.tips"
+    mode: 0640
+  delegate_to: localhost
+  become: false
+
+- name: iRedMail | Debian | Post-Install | Displaying admin-credentials and DKIM
+  ansible.builtin.debug:
+    msg: "Admin-User: '{{ IRM_CONFIG.config.admin_user }}@{{ IRM_CONFIG.domain }}',
+      Admin-Password: '{{ IRM_CONFIG.config.admin_pwd }}' |
+      DKIM Record: 'mail._domainkey.{{ IRM_CONFIG.domain }}' (default) |
+      DKIM Public key: '{{ irm_dkim.stdout | replace('\n', '') | replace('\"', '') | replace(' ', '') | replace(')', '') }}' |
+      More info can be found on the controller: '/tmp/{{ inventory_hostname }}_iRedMail.tips'"
+
+- name: iRedMail | Debian | Post-Install | Ask user
+  ansible.builtin.pause:
+    prompt: "You need to reboot the target system after the installation.
+    Should we do this now? [yes/NO]"
+  register: irm_prompt_reboot
+
+- name: iRedMail | Debian | Post-Install | Rebooting the system
+  ansible.builtin.reboot:
+    reboot_timeout: 60
+  when: "irm_prompt_reboot.user_input in ['y', 'Y', 'YES', 'yes']"

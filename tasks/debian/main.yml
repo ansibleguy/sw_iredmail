@@ -10,19 +10,38 @@
   when: IRM_CONFIG.manage.database
   tags: database
 
+- name: iRedMail | Debian | Setting hostname
+  ansible.builtin.hostname:
+    name: "{{ IRM_CONFIG.mailserver_sub_domain }}"
+
 - name: iRedMail | Debian | Set localhost name resolution
   ansible.builtin.lineinfile:
     dest: '/etc/hosts'
-    regexp: '^127.0.0.1(.*)$'
-    line: "127.0.0.1 {{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }} {{ inventory_hostname }} localhost"
+    regexp: '^127.0.1.1(.*)$'
+    line: "127.0.1.1 {{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }} {% if IRM_CONFIG.mailserver_sub_domain != inventory_hostname %}{{ IRM_CONFIG.mailserver_sub_domain }} {% endif %}{{ inventory_hostname }} localhost"
     state: present
     backrefs: yes
 
 - name: iRedMail | Debian | Checking if mailserver is initialized
   ansible.builtin.stat:
-    path: "{{ IRM_CONFIG.config.path.storage }}/test"
+    path: "{{ IRM_CONFIG.config.path_storage }}/vmail1"
   register: irm_initialized
 
 - name: iRedMail | Debian | Running installation tasks
   ansible.builtin.import_tasks: install.yml
   when: not irm_initialized.stat.exists
+  vars:
+    irm_setup_base: "{{ IRM_HC.path.setup }}/iRedMail-{{ IRM_CONFIG.version }}"
+
+- debug:
+    var: default_overrides
+
+- name: iRedMail | Debian | Configuring Nginx webserver
+  ansible.builtin.include_role:
+    name: ansibleguy.infra_nginx
+  vars:
+    nginx:
+      sites:
+        iredmail: "{{ IRM_NGINX }}"
+  tags: webserver
+  when: IRM_CONFIG.manage.webserver
