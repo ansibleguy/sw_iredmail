@@ -111,4 +111,8 @@
     - 'dovecot.service'
     - 'nginx.service'
     - 'mariadb@iredmail.service'
-  when: irm_mail_cert.changed
+  when: >
+    irm_mail_cert.changed or
+    (IRM_CONFIG.nginx.ssl.mode == 'letsencrypt' and
+    le_changed is defined and
+    le_changed.changed)

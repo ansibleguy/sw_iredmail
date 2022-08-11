@@ -46,12 +46,54 @@ else
   POLICY="$3"
 fi
 
-# alias
-$MYSQL_CLI -e "INSERT INTO vmail.alias (address, domain, active) VALUES ('$ALIAS', '$DOMAIN_SRC', 1);"
-# forwarding
-$MYSQL_CLI -e "INSERT INTO vmail.forwardings (address, forwarding, domain, dest_domain, is_list, active) VALUES ('$ALIAS', '$TARGET', '$DOMAIN_SRC', '$DOMAIN_DEST', 1, 1);"
-# access policy
-$MYSQL_CLI -e "UPDATE vmail.alias SET accesspolicy='$POLICY' WHERE address='$ALIAS';"
+echo ''
 
-echo "Created forwarding from '$ALIAS' to '$TARGET' with access-policy '$POLICY'!"
+created=false
+alias_exists=false
+
+# alias
+if $MYSQL_CLI -e "SELECT address FROM vmail.alias where address='$ALIAS';" | grep -q "$ALIAS"
+then
+  echo "Alias '$ALIAS' is already in use!"
+  alias_exists=true
+else
+  $MYSQL_CLI -e "INSERT INTO vmail.alias (address, domain, active) VALUES ('$ALIAS', '$DOMAIN_SRC', 1);"
+  created=true
+fi
+
+# forwarding
+existing_target=$($MYSQL_CLI -e "SELECT forwarding FROM vmail.forwardings where address='$ALIAS';" | sed '2p;d')
+if echo "$existing_target" | grep -q "$TARGET"
+then
+  echo "Forwarding from '$ALIAS' to '$TARGET' already exists!"
+elif [[ "$alias_exists" = true ]]
+then
+  echo 'Forwarding ALREADY EXISTS!'
+  echo "Currently from '$ALIAS' to '$existing_target'."
+  echo 'Delete it before re-creating it.'
+  echo ''
+  exit 1
+else
+  $MYSQL_CLI -e "INSERT INTO vmail.forwardings (address, forwarding, domain, dest_domain, is_list, active) VALUES ('$ALIAS', '$TARGET', '$DOMAIN_SRC', '$DOMAIN_DEST', 1, 1);"
+  created=true
+fi
+
+# access policy
+if ! $MYSQL_CLI -e "SELECT accesspolicy from vmail.alias where address='$ALIAS';" | grep -q "$POLICY"
+then
+  $MYSQL_CLI -e "UPDATE vmail.alias SET accesspolicy='$POLICY' WHERE address='$ALIAS';"
+  created=true
+  if [[ "$alias_exists" = true ]]
+  then
+    echo 'Updated access policy.'
+  fi
+fi
+
+echo ''
+if [[ "$created" = true ]]
+then
+  echo "Created/updated forwarding from '$ALIAS' to '$TARGET' with access-policy '$POLICY'!"
+else
+  echo 'Config up-to-date.'
+fi
 echo ''

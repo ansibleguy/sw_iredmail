@@ -24,13 +24,15 @@ then
   exit 1
 fi
 
+echo ''
+
 ALIAS="$1"
 if $MYSQL_CLI -e "SELECT address FROM vmail.forwardings where address='$ALIAS';" | grep -q "$ALIAS"
 then
   $MYSQL_CLI -e "DELETE FROM vmail.forwardings WHERE address='$ALIAS';"
-  echo "Removed forwardings for alias '$ALIAS'!"
+  echo "Removed forwarding for alias '$ALIAS'!"
 else
-  echo "Forwardings for alias '$ALIAS' do not exist!"
+  echo "Forwarding for alias '$ALIAS' do not exist!"
 fi
 
 if $MYSQL_CLI -e "SELECT address FROM vmail.alias where address='$ALIAS';" | grep -q "$ALIAS"

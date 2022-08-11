@@ -48,7 +48,7 @@ You can see the changes in Systemd, packages and files in this document: [Transp
   * **Default config**:
     * Data directory: '/var/vmail'
     * Admin user: admin@DOMAIN.TLD
-    * Script directory: '/usr/local/sbin/iredmail' (_for adding aliases, ..._)
+    * Script directory: '/usr/local/sbin/iredmail' (_for managing aliases, dkim keys, ..._)
  
 
   * **Default opt-ins**:
@@ -118,54 +118,9 @@ You can see the changes in Systemd, packages and files in this document: [Transp
   You can find them at: '/usr/local/sbin/iredmail'
 
 
-## Prerequisite
+## Prerequisites
 
-
-### System requirements
-
-Make sure your target system meets the [system requirements](https://docs.iredmail.org/install.iredmail.on.debian.ubuntu.html)!
-
-  - At LEAST 4GB of RAM for a low traffic setup.
-  - The target system needs to have a public IP.
-  - You need to have a public Domain.
-  - You might want to create a dedicated volume (_maybe use LVM_) for the data-directory - so you can easier extend/manage it.
-
-### Firewalling
-
-For the server to work, you must allow the following ports using your firewall:
-
-  - For web access: 80, 443 (_443 can be GeoIP/sourceIP restricted, 80 needs to be open if you are using LetsEncrypt_)
-  - Mailing basic: 25, 587, 465
-  - POP/IMAP over SSL: 993, 995
-  - POP/IMAP with StartTLS: 110, 143
-
-
-### Public DNS
-
-You need to configure public DNS records for mailing to work.
-
-iRedMail has a nice documentation on how to do that: [LINK](https://docs.iredmail.org/setup.dns.html)
-
-**Needed**:
-
-| TYPE | KEY                             | VALUE                                          | COMMENT                                                                                  |
-|:----:|:--------------------------------|:-----------------------------------------------|:-----------------------------------------------------------------------------------------|
-|  A   |  SRV.DOMAIN.TLD                 | SRV-PUBLIC-IP                                  | -                                                                                        |
-|  MX  | DOMAIN.TLD                 | 10 SRV.DOMAIN.TLD                              | -                                                                                        |
-| TXT  | DOMAIN.TLD                 | v=spf1 mx -all                                 | -                                                                                        |
-| TXT  | _dmarc.DOMAIN.TLD          | v=DMARC1; p=quarantine; aspf=s; adkim=s;       | -                                                                                        |
-| TXT  | mail._domainkey.DOMAIN.TLD | v=DKIM1; p=MIIBIjANBgkqhkiG...                 | Replace the value by YOUR DKIM record!                                                   |
-| TXT  | *.DOMAIN.TLD               | v=spf1 -all                                    | Any domain/subdomain that is not used to send mails, should IMPLICITLY DENY any senders! |
-| PTR  | YOUR-SRV-IP | SRV.DOMAIN.TLD | You cannot set a PTR record in your DNS-Panel/management! Your internet provider/hoster has to do that. Bigger hosters will give you an option for this in their managment interface. |
-
-**Optional**:
-
-| TYPE | KEY                         | VALUE                                       | COMMENT                                                                                  |
-|:----:|:----------------------------|:--------------------------------------------|:-----------------------------------------------------------------------------------------|
-|  CNAME | PRETTY_NAME.DOMAIN.TLD      | SRV.DOMAIN.TLD                              | Just a pretty name for the webmail if your server-name isn't that nice |
-|  CNAME | autodiscover.DOMAIN.TLD     | SRV.DOMAIN.TLD                      | If you use a mail-client (_outlook_) |
-|  CNAME | autoconfig.DOMAIN.TLD       | SRV.DOMAIN.TLD                      | If you use a mail-client (_kmail, ..._) |
-
+[Prerequisites](https://github.com/ansibleguy/sw_iredmail/blob/stable/Prerequisites.md)
 
 ## Setup
 
