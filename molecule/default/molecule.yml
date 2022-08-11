@@ -19,22 +19,23 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: test-ag-ROLE-tester
+  - name: test-ag-iredmail-tester
     docker_networks:
-      - name: 'test-ag-ROLE'
+      - name: 'test-ag-iredmail'
         ipam_config:
-          - subnet: '192.168.N.0/24'
-            gateway: '192.168.N.254'
+          - subnet: '192.168.5.0/24'
+            gateway: '192.168.5.254'
     networks:
-      - name: 'test-ag-ROLE'
-        ipv4_address: '192.168.N.1'
+      - name: 'test-ag-iredmail'
+        ipv4_address: '192.168.5.1'
+    etc_hosts: {iredmail.lan: '192.168.5.2'}
     groups: [grp_tester]
     <<: *docker_all
 
-  - name: test-ag-ROLE-1
+  - name: test-ag-iredmail-1
     networks:
-      - name: 'test-ag-ROLE'
-        ipv4_address: '192.168.N.2'
+      - name: 'test-ag-iredmail'
+        ipv4_address: '192.168.5.2'
     groups: [grp_targets]
     <<: *docker_all
 

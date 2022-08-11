@@ -1,13 +1,82 @@
 ---
 
 - name: Verify
+  hosts: grp_targets
+  gather_facts: false
+  tasks:
+    - name: Checking that services are running and enabled
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        enabled: true
+        state: started
+      check_mode: true
+      register: svc_test
+      loop:
+        - 'postfix.service'
+        - 'postfix@-.service'
+        - 'dovecot.service'
+        - 'nginx.service'
+        - 'mariadb@iredmail.service'
+        - 'amavis-mc.service'
+        - 'spamassassin.service'
+        - 'clamav-daemon.service'
+        - 'iredapd.service'
+        - 'iredadmin.service'
+        - 'fail2ban.service'
+      failed_when: svc_test.changed
+
+    - name: Check ports
+      wait_for:
+        port: "{{ item }}"
+        timeout: 1
+        msg: "Checking port {{ item }}"
+      ignore_errors: true
+      register: port_test
+      loop:
+        - 80  # web
+        - 443
+        - 25  # postfix
+        - 465
+        - 587
+        - 993  # dovecot
+        - 995
+        - 110
+        - 143
+        - 4190
+        - 24
+        - 12340
+        - 24242
+        - 10025
+        - 10028
+        - 10024  # amavisd
+        - 10026
+        - 10027
+        - 9998
+        - 7777  # iRedAPD
+        - 7778
+        - 7779
+        - 7790  # mlmmj
+        - 7791  # iRedAdmin
+        - 3306  # mariadb
+        - 9999  # php fpm
+        - 783  # spamassassin
+      ]
+
+    - debug:
+        var: port_test
+
+- name: Verify
   hosts: grp_tester
   gather_facts: false
-  tasks: []
-  #  - name: Checking if zoneminder web-service is reachable
-  #    ansible.builtin.uri:
-  #      url: 'https://192.168.0.2'
-  #      return_content: yes
-  #      validate_certs: false
-  #    register: page
-  #    failed_when: "'Zoneminder' not in page.content"
+  tasks:
+    - name: Checking if web-service is reachable
+      ansible.builtin.uri:
+        url: "{{ item.url }}"
+        return_content: yes
+        validate_certs: false
+      register: page
+      failed_when: "'{{ item.content }}' not in page.content"
+      loop:
+        - {url: 'https://iredmail.lan', content: 'Roundcube Webmail'}
+        - {url: 'https://iredmail.lan/iredadmin', content: 'Login To Manage'}
+        - {url: 'http://iredmail.lan/.well-known/acme-challenge/test', content: '404 Not Found'}

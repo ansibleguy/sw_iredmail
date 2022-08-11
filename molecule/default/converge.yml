@@ -2,7 +2,21 @@
 
 - name: Converge
   hosts: grp_targets
-  #  vars:
+  vars:
+    iredmail:
+      domain: 'iredmail.lan'
+      mailserver_sub_domain: 'mail'
+#      manage:
+#        sogo: true
+
+      config:
+        admin_user: 'postmaster'
+
+      nginx:
+        aliases: ['alias.lan', '_']
+        ip: '192.168.5.2'
+        ssl:
+          mode: 'ca'
 
   roles:
-    - ansibleguy.ROLE
+    - ansibleguy.sw_iredmail
