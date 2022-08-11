@@ -1,0 +1,68 @@
+---
+
+# default config => is overwritten by provided config
+defaults_irm:
+  version: '1.6.0'
+
+  manage:
+    # managed by setup script
+    ired_admin: true
+    managesieve: true
+    roundcube: true
+    fail2ban: true  # app-specific config: https://github.com/iredmail/iRedMail/tree/master/samples/fail2ban/filter.d
+    postscreen: true
+    sogo: false
+    nftables: false  # configure nftables firewall
+    netdata: false
+    # managed by role
+    database: true  # if db should be created by this role
+    webserver: true  # if nginx should be manage by this role (else only the install-script will add its config)
+
+  config:
+    admin_user: 'admin'
+    admin_pwd: "{{ lookup('password', tmp_pwd_file_prefix + '_admin chars=ascii_letters,digits length=' + random_pwd_length) }}"
+    path_storage: '/var/vmail'
+
+    debug: false
+    syslog: true
+    ciphers: 'EECDH+CHACHA20:EECDH+AESGCM:EDH+AESGCM:AES256+EECDH'
+    dkim_selector: 'mail'
+
+  database:
+    settings:  # mariadb setting overrides
+      port: 3306  # ONLY CHANGE IF DB IS NOT MANAGED BY ROLE!
+
+    # ONLY CHANGE IF DB IS NOT MANAGED BY ROLE!
+    type: 'MYSQL'
+    host: '127.0.0.1'
+    socket: '/run/mysqld/mysqld_iredmail.sock'
+
+  nginx:  # configure the webserver settings => see: https://github.com/ansibleguy/infra_nginx
+    config: {}
+    ssl:  # see: https://github.com/ansibleguy/infra_certs
+      mode: 'ca'  # existing/selfsigned/ca/letsencrypt
+      cert:
+        name:
+        cn: 'iRedMail Certificate'
+        org: 'AnsibleGuy'
+
+  user:
+    vmail_uid: 2000
+    ired_admin_uid: 2001
+    ired_apd_uid: 2002
+    mlmmj_uid: 2003
+    netdata_uid: 2004
+
+  # THE FOLLOWING SETTINGS ARE FOR ADVANCED USERS ONLY!
+  overrides:  # see defaults below for examples
+    settings: {}
+    # all settings in the following files can be overwritten:
+    #  core: https://github.com/iredmail/iRedMail/blob/master/conf/core
+    #  global: https://github.com/iredmail/iRedMail/blob/master/conf/global
+    # make sure strings are inside single quotes - per example: "'YES'"
+    conf: {}
+    # override in config-files: https://github.com/iredmail/iRedMail/tree/master/conf
+    sample: {}
+     # override in sample-files: https://github.com/iredmail/iRedMail/tree/master/sample
+
+IRM_CONFIG: "{{ defaults_irm | combine(iredmail, recursive=true) }}"

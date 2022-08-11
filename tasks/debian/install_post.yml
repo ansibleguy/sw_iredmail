@@ -16,6 +16,14 @@
     - irm_nftables_enabled.changed
     - not IRM_CONFIG.manage.nftables
 
+- name: iRedMail | Debian | Config | Updating MySQL client-config
+  ansible.builtin.lineinfile:
+    dest: '/root/my.cnf'
+    regexp: '^socket='
+    line: "socket={{ IRM_CONFIG.database.socket }}"
+    insertafter: '[client]'
+    state: present
+
 - name: iRedMail | Debian | Post-Install | Pulling setup TIPS
   ansible.builtin.command:
     cmd: '/usr/bin/cat iRedMail.tips'
@@ -56,3 +64,4 @@
   ansible.builtin.reboot:
     reboot_timeout: 60
   when: "irm_prompt_reboot.user_input in ['y', 'Y', 'YES', 'yes']"
+  changed_when: false

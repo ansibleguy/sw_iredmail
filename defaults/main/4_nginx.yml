@@ -1,0 +1,25 @@
+---
+
+# todo: additional security measurements for admin-interface(s)
+#   basic-auth, source-ip filter, ...
+defaults_irm_nginx:
+  domain: "{{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }}"
+  mode: 'serve'
+  port_plain: 80
+  port_ssl: 443
+  serve:
+    path: '/var/www/html'
+    index: ['index.html', 'index.php']
+  aliases: ['_']
+  config: {}
+  headers:
+    'X-Frame-Options': 'sameorigin'  # RoundCube
+  config_additions:
+    - 'include /etc/nginx/templates/misc.tmpl;'
+    - "{% if IRM_CONFIG.manage.ired_admin %}include /etc/nginx/templates/iredadmin.tmpl;{% endif %}"
+    - "{% if IRM_CONFIG.manage.roundcube %}include /etc/nginx/templates/roundcube.tmpl;{% endif %}"
+    - "{% if IRM_CONFIG.manage.sogo %}include /etc/nginx/templates/sogo.tmpl;{% endif %}"
+    - "{% if IRM_CONFIG.manage.netdata %}include /etc/nginx/templates/netdata.tmpl;{% endif %}"
+    - 'include /etc/nginx/templates/php-catchall.tmpl;'
+
+IRM_NGINX: "{{ defaults_irm_nginx | combine(IRM_CONFIG.nginx, recursive=true) }}"

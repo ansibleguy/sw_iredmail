@@ -9,7 +9,7 @@ iRedMail has some good Graphs that describe the mail-flow:
 
 I've created this topology overview:
 
-[![iRedMail Topology](https://github.com/ansibleguy/sw_iredmail/blob/stable/iRedMail.svg)](https://github.com/ansibleguy/sw_iredmail/blob/stable/iRedMail.svg)
+[![iRedMail Topology](https://github.com/ansibleguy/sw_iredmail/blob/stable/docs/iRedMail.svg)](https://github.com/ansibleguy/sw_iredmail/blob/stable/docs/iRedMail.svg)
 
 
 ## Script changes
@@ -20,6 +20,35 @@ BE AWARE - these changes might change in later versions. I checked them for V1.6
 
 These checks were performed after running the role with its default config.
 
+## Test results
+
+Both tests were filtered as bots. Extended tests would work after safe-listing their ips.
+
+MXToolbox: [LINK](https://mxtoolbox.com/SuperTool.aspx?action=smtp)
+```bash
+220-SRV.DOMAIN.TLD ESMTP Postfix
+220 SRV.DOMAIN.TLD ESMTP Postfix [6251 ms]
+EHLO keeper-us-east-1c.mxtoolbox.com
+250-SRV.DOMAIN.TLD
+250-PIPELINING
+250-SIZE 15728640
+250-ETRN
+250-STARTTLS
+250-ENHANCEDSTATUSCODES
+250-8BITMIME
+250-DSN
+250-SMTPUTF8
+250 CHUNKING [213 ms]
+MAIL FROM:<supertool@mxtoolboxsmtpdiag.com>
+250 2.1.0 Ok [218 ms]
+RCPT TO:<test@mxtoolboxsmtpdiag.com>
+
+SendSMTPCommand: You hung up on us after we connected. Please whitelist us. (connection lost)
+```
+
+SSL-Tools: [LINK](https://ssl-tools.net/mailservers)
+
+[![SSL-Tools test](https://github.com/ansibleguy/sw_iredmail/blob/stable/docs/test_ssl-tools.png)](https://github.com/ansibleguy/sw_iredmail/blob/stable/docs/test_ssl-tools.png)
 
 ### Systemd (+13)
  

@@ -1,87 +1,6 @@
 ---
 
-random_pwd_length: '50'
-tmp_pwd_file_prefix: '/tmp/.ansibleguy.sw_iredmail'
-
-IRM_HC:
-  path:
-    setup: '/tmp/iredmail'
-    setup_log: '/var/log/iredmail'
-  download_url: 'https://github.com/iredmail/iRedMail/archive/refs/tags'
-  install_timeout: 600
-  packages:
-    absent: ['rpm', 'rpm-common', 'rpm2cpio']
-
-iredmail: {}
-
-# default config => is overwritten by provided config
-default_irm:
-  version: '1.6.0'
-
-  manage:
-    # managed by setup script
-    ired_admin: true
-    managesieve: true
-    roundcube: true
-    fail2ban: true  # app-specific config: https://github.com/iredmail/iRedMail/tree/master/samples/fail2ban/filter.d
-    postscreen: true
-    sogo: false
-    nftables: false  # configure nftables firewall
-    netdata: false
-    # managed by role
-    database: true  # if db should be created by this role
-    webserver: true  # if nginx should be manage by this role (else only the install-script will add its config)
-
-  config:
-    admin_user: 'admin'
-    admin_pwd: "{{ lookup('password', tmp_pwd_file_prefix + '_admin chars=ascii_letters,digits length=' + random_pwd_length) }}"
-    path_storage: '/var/vmail'
-
-    debug: false
-    syslog: true
-    ciphers: 'EECDH+CHACHA20:EECDH+AESGCM:EDH+AESGCM:AES256+EECDH'
-    dkim_selector: 'mail'
-
-  database:
-    settings:  # mariadb setting overrides
-      port: 3306  # ONLY CHANGE IF DB IS NOT MANAGED BY ROLE!
-
-    # ONLY CHANGE IF DB IS NOT MANAGED BY ROLE!
-    type: 'MYSQL'
-    host: '127.0.0.1'
-    socket: '/run/mysqld/mysqld_iredmail.sock'
-
-  nginx:  # configure the webserver settings => see: https://github.com/ansibleguy/infra_nginx
-    config: {}
-    ssl:  # see: https://github.com/ansibleguy/infra_certs
-      mode: 'ca'  # existing/selfsigned/ca/letsencrypt
-      cert:
-        name:
-        cn: 'iRedMail Certificate'
-        org: 'AnsibleGuy'
-
-  user:
-    vmail_uid: 2000
-    ired_admin_uid: 2001
-    ired_apd_uid: 2002
-    mlmmj_uid: 2003
-    netdata_uid: 2004
-
-  # THE FOLLOWING SETTINGS ARE FOR ADVANCED USERS ONLY!
-  overrides:  # see defaults below for examples
-    settings: {}
-    # all settings in the following files can be overwritten:
-    #  core: https://github.com/iredmail/iRedMail/blob/master/conf/core
-    #  global: https://github.com/iredmail/iRedMail/blob/master/conf/global
-    # make sure strings are inside single quotes - per example: "'YES'"
-    conf: {}
-    # override in config-files: https://github.com/iredmail/iRedMail/tree/master/conf
-    sample: {}
-     # override in sample-files: https://github.com/iredmail/iRedMail/tree/master/sample
-
-IRM_CONFIG: "{{ default_irm | combine(iredmail, recursive=true) }}"
-
-default_overrides:
+defaults_overrides:
   settings:
     # switches for main functionality
     USE_IREDADMIN: "'{{ 'YES' if IRM_CONFIG.manage.ired_admin else 'NO' }}'"
@@ -89,7 +8,8 @@ default_overrides:
     USE_NFTABLES: "'{{ 'YES' if IRM_CONFIG.manage.nftables else 'NO' }}'"
     USE_NETDATA: "'{{ 'YES' if IRM_CONFIG.manage.netdata else 'NO' }}'"
     USE_ROUNDCUBE: "'{{ 'YES' if IRM_CONFIG.manage.roundcube else 'NO' }}'"
-    USE_SOGO: "'{{ 'YES' if IRM_CONFIG.manage.sogo else 'NO' }}'"
+    #USE_SOGO: "'{{ 'YES' if IRM_CONFIG.manage.sogo else 'NO' }}'"
+    USE_SOGO: "'NO'"  # currently, killing the installation script
     USE_FAIL2BAN: "'{{ 'YES' if IRM_CONFIG.manage.fail2ban else 'NO' }}'"
     WEB_SERVER: "'NGINX'"
 
@@ -122,7 +42,7 @@ default_overrides:
     RCM_DB_PASSWD: "'{{ lookup('password', tmp_pwd_file_prefix + '_mysql_rcm chars=ascii_letters,digits length=' + random_pwd_length) }}'"
     AMAVISD_DB_PASSWD: "'{{ lookup('password', tmp_pwd_file_prefix + '_mysql_ava chars=ascii_letters,digits length=' + random_pwd_length) }}'"
     NETDATA_DB_PASSWD: "'{{ lookup('password', tmp_pwd_file_prefix + '_mysql_nd chars=ascii_letters,digits length=' + random_pwd_length) }}'"
-    FAIL2BAN_DB_USER: "'{{ lookup('password', tmp_pwd_file_prefix + '_mysql_f2b chars=ascii_letters,digits length=' + random_pwd_length) }}'"
+    FAIL2BAN_DB_PASSWD: "'{{ lookup('password', tmp_pwd_file_prefix + '_mysql_f2b chars=ascii_letters,digits length=' + random_pwd_length) }}'"
 
     # users
     SYS_USER_VMAIL_UID: "'{{ IRM_CONFIG.user.vmail_uid }}'"
@@ -155,27 +75,4 @@ default_overrides:
       - search: '^dkim_key\('
         replace: "dkim_key('PH_FIRST_DOMAIN', '{{ IRM_CONFIG.config.dkim_selector }}', 'PH_AMAVISD_FIRST_DOMAIN_DKIM_KEY');"
 
-IRM_OVERRIDES: "{{ default_overrides | combine(IRM_CONFIG.overrides, recursive=true) }}"
-
-IRM_MARIADB_INSTANCE: "{{ {
-  'settings': IRM_CONFIG.database.settings,
-  'socket': IRM_CONFIG.database.socket
-} }}"  # DO NOT CHANGE!
-
-default_nginx:
-  domain: "{{ IRM_CONFIG.domain }}"
-  mode: 'serve'
-  serve:
-    path: '/var/www/html'
-    index: ['index.html', 'index.php']
-  aliases: ['_']
-  config: {}
-  config_additions:
-    - 'include /etc/nginx/templates/misc.tmpl;'
-    - "{% if IRM_CONFIG.manage.iredadmin %}include /etc/nginx/templates/iredadmin.tmpl;{% endif %}"
-    - "{% if IRM_CONFIG.manage.roundcube %}include /etc/nginx/templates/roundcube.tmpl;{% endif %}"
-    - "{% if IRM_CONFIG.manage.sogo %}include /etc/nginx/templates/sogo.tmpl;{% endif %}"
-    - "{% if IRM_CONFIG.manage.netdata %}include /etc/nginx/templates/netdata.tmpl;{% endif %}"
-    - 'include /etc/nginx/templates/php-catchall.tmpl;'
-
-IRM_NGINX: "{{ default_nginx | combine(IRM_CONFIG.nginx, recursive=true) }}"
+IRM_OVERRIDES: "{{ defaults_overrides | combine(IRM_CONFIG.overrides, recursive=true) }}"

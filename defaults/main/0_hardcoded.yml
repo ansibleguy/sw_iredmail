@@ -1,0 +1,34 @@
+---
+
+random_pwd_length: '50'
+tmp_pwd_file_prefix: '/tmp/.ansibleguy.sw_iredmail'
+
+IRM_HC:
+  path:
+    setup: '/tmp/iredmail'
+    setup_log: '/var/log/iredmail'
+    clamav: '/var/lib/clamav'
+    scripts: '/usr/local/sbin/iredmail'
+  download_url: 'https://github.com/iredmail/iRedMail/archive/refs/tags'
+  download_url_clamav: 'https://dl.ansibleguy.net/sw_iredmail/clamav.tar.gz'
+  install_timeout: 600
+  packages:
+    absent: ['rpm', 'rpm-common', 'rpm2cpio']
+  certificate:
+    path:
+      letsencrypt: '/etc/letsencrypt/live/iredmail'
+      ca: '/etc/nginx/ssl'
+      selfsigned: '/etc/nginx/ssl'
+    chain:
+      letsencrypt: 'fullchain.pem'
+      ca: 'iredmail.chain.crt'
+      selfsigned: 'iredmail.chain.crt'
+    key:
+      letsencrypt: 'privkey.pem'
+      ca: 'iredmail.key'
+      selfsigned: 'iredmail.key'
+    iredmail:
+      chain: '/etc/ssl/certs/iRedMail.crt'
+      key: '/etc/ssl/private/iRedMail.key'
+
+iredmail: {}

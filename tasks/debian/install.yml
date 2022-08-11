@@ -1,12 +1,5 @@
 ---
 
-- name: iRedMail | Debian | Install | Checking if NFTables service is enabled
-  ansible.builtin.systemd:
-    name: 'nftables.service'
-    enabled: true
-  check_mode: true
-  register: irm_nftables_enabled
-
 - name: iRedMail | Debian | Install | Creating directories
   ansible.builtin.file:
     state: directory
@@ -15,7 +8,23 @@
   loop:
     - "{{ IRM_HC.path.setup }}"
     - "{{ IRM_HC.path.setup_log }}"
+    - "{{ IRM_HC.path.clamav }}"
     - "{{ IRM_CONFIG.config.path_storage }}"
+
+- name: iRedMail | Debian | Install | Checking if NFTables service is enabled
+  ansible.builtin.systemd:
+    name: 'nftables.service'
+    enabled: true
+  check_mode: true
+  register: irm_nftables_enabled
+
+# if clamav-freshclam.service isn't able to pull updates initially the service won't start at all..
+- name: iRedMail | Debian | Install | Downloading & unpacking ClamAV initial ruleset
+  ansible.builtin.unarchive:
+    src: "{{ IRM_HC.download_url_clamav }}"
+    dest: "{{ IRM_HC.path.clamav }}/"
+    remote_src: yes
+  ignore_errors: true
 
 - name: iRedMail | Debian | Install | Downloading & unpacking code
   ansible.builtin.unarchive:
@@ -38,6 +47,8 @@
   timeout: "{{ IRM_HC.install_timeout }}"
   register: irm_install
   ignore_errors: true
+  failed_when:
+    - "'<< ERROR >>' in irm_install.stdout"
   changed_when:
     - "'< SKIP > Function: mysql_setup' not in irm_install.stdout"
     - "'< SKIP > Function: postfix_setup' not in irm_install.stdout"
@@ -67,13 +78,12 @@
     - 'runtime/init_vmail_db.sql'
     - 'runtime/iredmail.sql'
     - 'runtime/add_first_domain_and_user.sql'
-    - 'runtime/remote_grant_permission.sql'
   ignore_errors: true
 
 - name: iRedMail | Debian | Install | Handling error
   ansible.builtin.import_tasks: install_error.yml
 
-- name: iRedMail | Debian | Install | Removing useless packages
+- name: iRedMail | Debian | Install | Removing packages
   ansible.builtin.apt:
     name: "{{ IRM_HC.packages.absent }}"
     state: absent

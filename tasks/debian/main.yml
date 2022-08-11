@@ -1,5 +1,23 @@
 ---
 
+- name: iRedMail | Debian | Setting hostname
+  ansible.builtin.hostname:
+    name: "{{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }}"
+
+- name: iRedMail | Debian | Set localhost name resolution
+  ansible.builtin.lineinfile:
+    dest: '/etc/hosts'
+    regexp: '^127.0.1.1'
+    line: "127.0.1.1 {{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }} {% if IRM_CONFIG.mailserver_sub_domain != inventory_hostname %}{{ IRM_CONFIG.mailserver_sub_domain }} {% endif %}{{ inventory_hostname }} localhost"
+    state: present
+    backrefs: yes
+
+- name: iRedMail | Debian | Creating directories
+  ansible.builtin.file:
+    state: directory
+    path: "{{ IRM_HC.path.scripts }}"
+    mode: 0755
+
 - name: iRedMail | Debian | Setting up MariaDB instance
   ansible.builtin.include_role:
     name: ansibleguy.infra_mariadb
@@ -9,18 +27,6 @@
         iredmail: "{{ IRM_MARIADB_INSTANCE }}"
   when: IRM_CONFIG.manage.database
   tags: database
-
-- name: iRedMail | Debian | Setting hostname
-  ansible.builtin.hostname:
-    name: "{{ IRM_CONFIG.mailserver_sub_domain }}"
-
-- name: iRedMail | Debian | Set localhost name resolution
-  ansible.builtin.lineinfile:
-    dest: '/etc/hosts'
-    regexp: '^127.0.1.1(.*)$'
-    line: "127.0.1.1 {{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }} {% if IRM_CONFIG.mailserver_sub_domain != inventory_hostname %}{{ IRM_CONFIG.mailserver_sub_domain }} {% endif %}{{ inventory_hostname }} localhost"
-    state: present
-    backrefs: yes
 
 - name: iRedMail | Debian | Checking if mailserver is initialized
   ansible.builtin.stat:
@@ -33,6 +39,23 @@
   vars:
     irm_setup_base: "{{ IRM_HC.path.setup }}/iRedMail-{{ IRM_CONFIG.version }}"
 
+- name: iRedMail | Debian | Copying useful scripts
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ IRM_HC.path.scripts }}/"
+    owner: 'root'
+    group: 'root'
+    mode: 0750
+  with_fileglob: "templates/usr/local/sbin/iredmail/*"
+
+- name: iRedMail | Debian | Removing default Nginx sites
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - '/etc/nginx/sites-enabled/00-default-ssl.conf'
+    - '/etc/nginx/sites-enabled/00-default.conf'
+
 - name: iRedMail | Debian | Configuring Nginx webserver
   ansible.builtin.include_role:
     name: ansibleguy.infra_nginx
@@ -42,3 +65,50 @@
         iredmail: "{{ IRM_NGINX }}"
   when: IRM_CONFIG.manage.webserver
   tags: webserver
+
+- name: iRedMail | Debian | Checking if Nginx is running
+  ansible.builtin.shell: "/usr/bin/netstat -tulpn | grep -q {{ IRM_NGINX.port_plain }}"
+  changed_when: false
+
+- name: iRedMail | Debian | Backing-up current certificates
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    remote_src: true
+    dest: '/var/backups/'
+    mode: 0640
+  loop:
+    - "{{ IRM_HC.certificate.iredmail.chain }}"
+    - "{{ IRM_HC.certificate.iredmail.key }}"
+
+- name: iRedMail | Debian | Linking cert for mail services
+  ansible.builtin.file:
+    state: link
+    src: "{{ item.src }}"
+    dest: "{{ item.dst }}"
+    mode: 0640
+    owner: 'root'
+    group: 'root'
+    follow: true
+    force: true
+  loop:
+    - {'dst': "{{ IRM_HC.certificate.iredmail.chain }}",
+       'src': "{{ src_path }}/{{ chain }}"}
+    - {'dst': "{{ IRM_HC.certificate.iredmail.key }}",
+       'src': "{{ src_path }}/{{ key }}"}
+  vars:
+    src_path: "{{ IRM_HC.certificate.path[IRM_CONFIG.nginx.ssl.mode] }}"
+    chain: "{{ IRM_HC.certificate.chain[IRM_CONFIG.nginx.ssl.mode] }}"
+    key: "{{ IRM_HC.certificate.key[IRM_CONFIG.nginx.ssl.mode] }}"
+  register: irm_mail_cert
+
+- name: iRedMail | Debian | Restarting services to use new certificate
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: restarted
+  loop:
+    - 'postfix.service'
+    - 'postfix@-.service'
+    - 'dovecot.service'
+    - 'nginx.service'
+    - 'mariadb@iredmail.service'
+  when: irm_mail_cert.changed

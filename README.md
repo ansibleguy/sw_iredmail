@@ -2,8 +2,6 @@
 
 # Ansible Role - iRedMail
 
-**WARNING: THIS ROLE IS NOT YET IN A STABLE STATE!!**
-
 Role to deploy iRedMail mail servers.
 
 [![Ansible Galaxy](https://img.shields.io/ansible/role/59937)](https://galaxy.ansible.com/ansibleguy/sw_iredmail)
@@ -45,12 +43,12 @@ You can see the changes in Systemd, packages and files in this document: [Transp
     * See 'Default opt-ins'
     * See 'Default opt-outs'
 
-  
 
 * **Configuration**
   * **Default config**:
     * Data directory: '/var/vmail'
     * Admin user: admin@DOMAIN.TLD
+    * Script directory: '/usr/local/sbin/iredmail' (_for adding aliases, ..._)
  
 
   * **Default opt-ins**:
@@ -64,7 +62,7 @@ You can see the changes in Systemd, packages and files in this document: [Transp
   * **Default opt-outs**:
     * Package installation
       * [NetData](https://netdata.cloud) (_Monitoring/Troubleshooting Utility_)
-      * [SOGo Groupware](https://www.sogo.nu/)
+      * [SOGo Groupware](https://www.sogo.nu/) **WARNING: Installation fails currently - therefore not an option** 
     * NFTables firewall management
 
 
@@ -79,7 +77,7 @@ You can see the changes in Systemd, packages and files in this document: [Transp
 * **Warning:** Not every setting/variable you provide will be checked for validity. Bad config might break the role!
 
 
-* **Warning:** After the installation, a configuration dump-file is created!
+* **Note:** After the installation, a configuration dump-file is created!
 
   In this file you can find the **credentials and useful information** to the services.
 
@@ -89,44 +87,7 @@ You can see the changes in Systemd, packages and files in this document: [Transp
   - the target system: /var/log/iredadmin/iRedMail.tips
 
 
-* **Warning:** Make sure your target system meets the [system requirements](https://docs.iredmail.org/install.iredmail.on.debian.ubuntu.html)!
-
-  - At LEAST 4GB of RAM for a low traffic setup.
-  - The target system needs to have a public IP.
-  - You need to have a public Domain.
-
-
-* **Warning:** You might want to create a dedicated volume (_maybe use LVM_) for the data-directory - so you can easier extend/manage it.
-
-
-* **Warning:** For the server to work, you must allow the following ports using your firewall:
-
-  - For web access: 80, 443
-  - Mailing basic: 25, 587, 465
-  - POP/IMAP over SSL: 993, 995
-  - POP/IMAP with StartTLS: 110, 143
-
-
 * **Warning:** If 'postscreen' is enabled (_default_) - mail clients need to connect via port 587 instead of 25!
-
-
-* **Info:** You need to configure public DNS records for mailing to work. iRedMail has a nice documentation on how to do that: [LINK](https://docs.iredmail.org/setup.dns.html)
-
-  **Recommended**:
-
-  - TYPE: A | KEY: SRV.DOMAIN.TLD | VALUE: 'SRV-PUBLIC-IP'
-  - TYPE: MX | KEY: DOMAIN.TLD | VALUE: '10 SRV.DOMAIN.TLD'
-  - TYPE: TXT | KEY: DOMAIN.TLD | VALUE: 'v=spf1 mx -all'
-  - TYPE: TXT | KEY: _dmarc.DOMAIN.TLD | VALUE: 'v=DMARC1; p=quarantine; aspf=s; adkim=s;'
-  - TYPE: TXT | KEY: mail._domainkey.DOMAIN.TLD | VALUE: 'v=DKIM1; p=MIIBIjANBgkqhkiG...' | COMMENT: Replace the value by YOUR DKIM record!
-  - TYPE: TXT | KEY: *.DOMAIN.TLD | VALUE: 'v=spf1 -all' | COMMENT: Any domain/subdomain that is not used to send mails, should IMPLICITLY DENY any senders!
-
-  **Optional**:
-  - TYPE: CNAME | KEY: PRETTY_NAME.DOMAIN.TLD | VALUE: 'SRV.DOMAIN.TLD' | COMMENT: Just a pretty name for the webmail if your server-name isn't that nice
-  - TYPE: CNAME | KEY: autodiscover.DOMAIN.TLD | VALUE: 'SRV.DOMAIN.TLD' | COMMENT: If you use a mail-client (_outlook_)
-  - TYPE: CNAME | KEY: autoconfig.DOMAIN.TLD | VALUE: 'SRV.DOMAIN.TLD' | COMMENT: If you use a mail-client (_kmail, ..._)
-
-  Also - you will have to set the **PTR record** of your servers IP to the FQDN (_SRV.DOMAIN.TLD_) of your server. 
 
 
 * **Info:** If you want to use mail clients with this server - follow this nice documentation of iRedMail: [LINK](https://docs.iredmail.org/index.html#configure-mail-client-applications)
@@ -150,6 +111,62 @@ You can see the changes in Systemd, packages and files in this document: [Transp
   It can be found at: https://SRV.DOMAIN.TLD/iredadmin (_credentials in setup TIPS_)
 
 
+* **Info:** More advanced configuration like 'aliases' and 'forwarding rules' are not configurable using the web-interface - unless you upgrade to [iRedAdmin PRO](https://www.iredmail.org/pricing.html).
+
+  Therefore, I created some useful scripts to make their management easier.
+
+  You can find them at: '/usr/local/sbin/iredmail'
+
+
+## Prerequisite
+
+
+### System requirements
+
+Make sure your target system meets the [system requirements](https://docs.iredmail.org/install.iredmail.on.debian.ubuntu.html)!
+
+  - At LEAST 4GB of RAM for a low traffic setup.
+  - The target system needs to have a public IP.
+  - You need to have a public Domain.
+  - You might want to create a dedicated volume (_maybe use LVM_) for the data-directory - so you can easier extend/manage it.
+
+### Firewalling
+
+For the server to work, you must allow the following ports using your firewall:
+
+  - For web access: 80, 443 (_443 can be GeoIP/sourceIP restricted, 80 needs to be open if you are using LetsEncrypt_)
+  - Mailing basic: 25, 587, 465
+  - POP/IMAP over SSL: 993, 995
+  - POP/IMAP with StartTLS: 110, 143
+
+
+### Public DNS
+
+You need to configure public DNS records for mailing to work.
+
+iRedMail has a nice documentation on how to do that: [LINK](https://docs.iredmail.org/setup.dns.html)
+
+**Needed**:
+
+| TYPE | KEY                             | VALUE                                          | COMMENT                                                                                  |
+|:----:|:--------------------------------|:-----------------------------------------------|:-----------------------------------------------------------------------------------------|
+|  A   |  SRV.DOMAIN.TLD                 | SRV-PUBLIC-IP                                  | -                                                                                        |
+|  MX  | DOMAIN.TLD                 | 10 SRV.DOMAIN.TLD                              | -                                                                                        |
+| TXT  | DOMAIN.TLD                 | v=spf1 mx -all                                 | -                                                                                        |
+| TXT  | _dmarc.DOMAIN.TLD          | v=DMARC1; p=quarantine; aspf=s; adkim=s;       | -                                                                                        |
+| TXT  | mail._domainkey.DOMAIN.TLD | v=DKIM1; p=MIIBIjANBgkqhkiG...                 | Replace the value by YOUR DKIM record!                                                   |
+| TXT  | *.DOMAIN.TLD               | v=spf1 -all                                    | Any domain/subdomain that is not used to send mails, should IMPLICITLY DENY any senders! |
+| PTR  | YOUR-SRV-IP | SRV.DOMAIN.TLD | You cannot set a PTR record in your DNS-Panel/management! Your internet provider/hoster has to do that. Bigger hosters will give you an option for this in their managment interface. |
+
+**Optional**:
+
+| TYPE | KEY                         | VALUE                                       | COMMENT                                                                                  |
+|:----:|:----------------------------|:--------------------------------------------|:-----------------------------------------------------------------------------------------|
+|  CNAME | PRETTY_NAME.DOMAIN.TLD      | SRV.DOMAIN.TLD                              | Just a pretty name for the webmail if your server-name isn't that nice |
+|  CNAME | autodiscover.DOMAIN.TLD     | SRV.DOMAIN.TLD                      | If you use a mail-client (_outlook_) |
+|  CNAME | autoconfig.DOMAIN.TLD       | SRV.DOMAIN.TLD                      | If you use a mail-client (_kmail, ..._) |
+
+
 ## Setup
 
 For this role to work - you must install its dependencies first:
@@ -170,6 +187,17 @@ iredmail:
   domain: 'template.ansibleguy.net'
   mailserver_sub_domain: 'mail'
 
+  nginx:  # configure the webserver settings => see: https://github.com/ansibleguy/infra_nginx
+    aliases: ['mail.ansibleguy.net']  # additional domains to add to the certificate
+    ssl:
+      mode: 'letsencrypt'  # or selfsigned/ca
+      #  if you use 'selfsigned' or 'ca':
+      #    cert:
+      #      cn: 'iRedMail Server'
+      #      org: 'AnsibleGuy'
+      #      email: 'iredmail@template.ansibleguy.net'
+    letsencrypt:
+      email: 'iredmail@template.ansibleguy.net'
 ```
 
 ### Execution
