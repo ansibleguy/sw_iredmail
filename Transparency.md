@@ -26,8 +26,7 @@ Both tests were filtered as bots. Extended tests would work after safe-listing t
 
 MXToolbox: [LINK](https://mxtoolbox.com/SuperTool.aspx?action=smtp)
 ```bash
-220-SRV.DOMAIN.TLD ESMTP Postfix
-220 SRV.DOMAIN.TLD ESMTP Postfix [6251 ms]
+220 SRV.DOMAIN.TLD ESMTP Postfix [566 ms]
 EHLO keeper-us-east-1c.mxtoolbox.com
 250-SRV.DOMAIN.TLD
 250-PIPELINING
@@ -38,12 +37,11 @@ EHLO keeper-us-east-1c.mxtoolbox.com
 250-8BITMIME
 250-DSN
 250-SMTPUTF8
-250 CHUNKING [213 ms]
+250 CHUNKING [216 ms]
 MAIL FROM:<supertool@mxtoolboxsmtpdiag.com>
-250 2.1.0 Ok [218 ms]
+250 2.1.0 Ok [222 ms]
 RCPT TO:<test@mxtoolboxsmtpdiag.com>
-
-SendSMTPCommand: You hung up on us after we connected. Please whitelist us. (connection lost)
+554 5.7.1 <test@mxtoolboxsmtpdiag.com>: Relay access denied [354 ms]
 ```
 
 SSL-Tools: [LINK](https://ssl-tools.net/mailservers)
