@@ -26,7 +26,7 @@
 
 - name: iRedMail | Debian | Post-Install | Pulling setup TIPS
   ansible.builtin.command:
-    cmd: '/usr/bin/cat iRedMail.tips'
+    cmd: 'cat iRedMail.tips'
   args:
     chdir: "{{ irm_setup_base }}"
   register: irm_setup_tips

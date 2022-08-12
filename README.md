@@ -4,6 +4,9 @@
 
 Role to deploy iRedMail mail servers.
 
+[![Molecule Test Status](https://badges.ansibleguy.net/sw_iredmail.molecule.svg)](https://molecule.readthedocs.io/en/latest/)
+[![YamlLint Test Status](https://badges.ansibleguy.net/sw_iredmail.yamllint.svg)](https://yamllint.readthedocs.io/en/stable/)
+[![Ansible-Lint Test Status](https://badges.ansibleguy.net/sw_iredmail.ansiblelint.svg)](https://ansible-lint.readthedocs.io/en/latest/)
 [![Ansible Galaxy](https://img.shields.io/ansible/role/59937)](https://galaxy.ansible.com/ansibleguy/sw_iredmail)
 [![Ansible Galaxy Downloads](https://img.shields.io/badge/dynamic/json?color=blueviolet&label=Galaxy%20Downloads&query=%24.download_count&url=https%3A%2F%2Fgalaxy.ansible.com%2Fapi%2Fv1%2Froles%2F59937%2F%3Fformat%3Djson)](https://galaxy.ansible.com/ansibleguy/sw_iredmail)
 
@@ -31,8 +34,8 @@ You can see the changes in Systemd, packages and files in this document: [Transp
   * MariaDB => using [THIS Role](https://github.com/ansibleguy/infra_mariadb)
   * Nginx => using [THIS Role](https://github.com/ansibleguy/infra_nginx)
   * iRedMail Setup Script
-    * Dovecot (_mail receiver_)
-    * Postfix (_mail sender_)
+    * Postfix (_mail sender/receiver_)
+    * Dovecot (_mail storage/client communication_)
     * Amavisd (_middleware for virus scanning and sender verification [spf/dkim]_)
     * ClamAV (_virus scanner_)
     * SpamAssassin (_spam scanner_)
@@ -71,7 +74,9 @@ You can see the changes in Systemd, packages and files in this document: [Transp
 * **Note:** this role currently only supports debian-based systems
 
 
-* **Note:** Most of this functionality can be opted in or out using the main defaults file and variables!
+* **Note:** Most of the role's functionality can be opted in or out.
+
+  For all available options - see the default-config located in the main defaults-file!
 
 
 * **Warning:** Not every setting/variable you provide will be checked for validity. Bad config might break the role!
@@ -102,8 +107,8 @@ You can see the changes in Systemd, packages and files in this document: [Transp
 
   Not all make sense or are safe to be changed. => BE WARNED.
 
-  1. You are able to override any basic global variable shown in '[core](https://github.com/iredmail/iRedMail/blob/master/conf/core)' or '[global](https://github.com/iredmail/iRedMail/blob/master/conf/global)' - using the 'iredmail.setting_overrides' dictionary. (_this is supported by the script_)
-  2. You can change config inside any file in the '[conf](https://github.com/iredmail/iRedMail/tree/master/conf)' directory - using the 'iredmail.custom_overrides' dictionary. (_this is NOT SUPPORTED by the script_)
+  1. You are able to override any basic global variable shown in '[core](https://github.com/iredmail/iRedMail/blob/master/conf/core)' or '[global](https://github.com/iredmail/iRedMail/blob/master/conf/global)' - using the 'iredmail.overrides.settings' dictionary. (_this is supported by the script_)
+  2. You can change config inside any file in the '[conf](https://github.com/iredmail/iRedMail/tree/master/conf)' directory - using the 'iredmail.overrides.conf' dictionary. (_this is NOT SUPPORTED by the script_)
 
 
 * **Info:** You can only configure one domain as further domains can be configured using the iRedAdmin web interface.
@@ -136,7 +141,6 @@ ansible-galaxy install -r requirements.yml
 ### Config
 
 Define the config as needed:
-
 ```yaml
 iredmail:
   domain: 'template.ansibleguy.net'
@@ -153,6 +157,13 @@ iredmail:
       #      email: 'iredmail@template.ansibleguy.net'
     letsencrypt:
       email: 'iredmail@template.ansibleguy.net'
+```
+
+Bare minimum example:
+```yaml
+iredmail:
+  domain: 'template.ansibleguy.net'
+  mailserver_sub_domain: 'mail'
 ```
 
 ### Execution

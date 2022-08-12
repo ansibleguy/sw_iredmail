@@ -28,7 +28,7 @@ platforms:
     networks:
       - name: 'test-ag-iredmail'
         ipv4_address: '192.168.5.1'
-    etc_hosts: {iredmail.lan: '192.168.5.2'}
+    etc_hosts: {iredmail.test.ansibleguy.net: '192.168.5.2'}
     groups: [grp_tester]
     <<: *docker_all
 
@@ -43,3 +43,15 @@ provisioner:
   name: ansible
 verifier:
   name: ansible
+scenario:
+  name: default
+  test_sequence:
+    - lint
+    - destroy
+    - syntax
+    - create
+    - converge
+    - idempotence
+    - check
+    - verify
+    - destroy

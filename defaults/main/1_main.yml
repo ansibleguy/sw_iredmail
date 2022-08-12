@@ -63,6 +63,6 @@ defaults_irm:
     conf: {}
     # override in config-files: https://github.com/iredmail/iRedMail/tree/master/conf
     sample: {}
-     # override in sample-files: https://github.com/iredmail/iRedMail/tree/master/sample
+    # override in sample-files: https://github.com/iredmail/iRedMail/tree/master/sample
 
 IRM_CONFIG: "{{ defaults_irm | combine(iredmail, recursive=true) }}"

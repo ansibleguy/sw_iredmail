@@ -4,10 +4,10 @@
   hosts: grp_targets
   vars:
     iredmail:
-      domain: 'iredmail.lan'
+      domain: 'iredmail.test.ansibleguy.net'
       mailserver_sub_domain: 'mail'
-#      manage:
-#        sogo: true
+      # manage:
+      #   sogo: true
 
       config:
         admin_user: 'postmaster'

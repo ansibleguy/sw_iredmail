@@ -2,7 +2,7 @@
 
 - name: iRedMail | Debian | Install | Error | Pull installation progress
   ansible.builtin.command:
-    cmd: '/usr/bin/cat install.status'
+    cmd: 'cat install.status'
   args:
     chdir: "{{ irm_setup_base }}/runtime"
   when:
@@ -12,7 +12,7 @@
 
 - name: iRedMail | Debian | Install | Error | Pull installation logs
   ansible.builtin.command:
-    cmd: '/usr/bin/cat install.log'
+    cmd: 'cat install.log'
   args:
     chdir: "{{ irm_setup_base }}/runtime"
   when:
