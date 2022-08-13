@@ -78,9 +78,6 @@
         - 9999  # php fpm
         - 783  # spamassassin
 
-    - debug:
-        var: port_test
-
 - name: Verify
   hosts: grp_tester
   gather_facts: false
