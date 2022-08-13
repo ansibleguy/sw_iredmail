@@ -19,22 +19,22 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: test-ag-iredmail-tester
+  - name: test-ag-iredmail-tester-${USER}
     docker_networks:
-      - name: 'test-ag-iredmail'
+      - name: 'test-ag-iredmail-${USER}'
         ipam_config:
           - subnet: '192.168.5.0/24'
             gateway: '192.168.5.254'
     networks:
-      - name: 'test-ag-iredmail'
+      - name: 'test-ag-iredmail-${USER}'
         ipv4_address: '192.168.5.1'
     etc_hosts: {iredmail.test.ansibleguy.net: '192.168.5.2'}
     groups: [grp_tester]
     <<: *docker_all
 
-  - name: test-ag-iredmail-1
+  - name: test-ag-iredmail-1-${USER}
     networks:
-      - name: 'test-ag-iredmail'
+      - name: 'test-ag-iredmail-${USER}'
         ipv4_address: '192.168.5.2'
     groups: [grp_targets]
     <<: *docker_all

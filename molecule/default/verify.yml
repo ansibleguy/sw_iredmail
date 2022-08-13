@@ -47,8 +47,6 @@
         port: "{{ item }}"
         timeout: 1
         msg: "Checking port {{ item }}"
-      ignore_errors: true
-      register: port_test
       loop:
         - 80  # web
         - 443
