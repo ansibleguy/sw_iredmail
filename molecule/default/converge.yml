@@ -3,6 +3,7 @@
 - name: Converge
   hosts: grp_targets
   vars:
+    no_prompts: true
     iredmail:
       domain: 'iredmail.test.ansibleguy.net'
       mailserver_sub_domain: 'mail'

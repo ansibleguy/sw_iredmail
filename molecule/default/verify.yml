@@ -43,7 +43,7 @@
         - 'fail2ban.service'
 
     - name: Checking ports
-      wait_for:
+      ansible.builtin.wait_for:
         port: "{{ item }}"
         timeout: 1
         msg: "Checking port {{ item }}"

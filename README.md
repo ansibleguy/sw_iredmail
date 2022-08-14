@@ -125,7 +125,7 @@ You can see the changes in Systemd, packages and files in this document: [Transp
 
 ## Prerequisites
 
-[Prerequisites](https://github.com/ansibleguy/sw_iredmail/blob/stable/Prerequisites.md)
+See: [Prerequisites](https://github.com/ansibleguy/sw_iredmail/blob/stable/Prerequisites.md)
 
 ## Setup
 
@@ -145,6 +145,7 @@ Define the config as needed:
 iredmail:
   domain: 'template.ansibleguy.net'
   mailserver_sub_domain: 'mail'
+  # per example: 'mail.template.ansibleguy.net' must be a valid, public dns-hostname of the server
 
   nginx:  # configure the webserver settings => see: https://github.com/ansibleguy/infra_nginx
     aliases: ['mail.ansibleguy.net']  # additional domains to add to the certificate

@@ -5,6 +5,7 @@
     that:
       - IRM_CONFIG.domain is defined
       - IRM_CONFIG.mailserver_sub_domain is defined
+      - IRM_CONFIG.mailserver_sub_domain + '.' + IRM_CONFIG.domain | valid_hostname
 
 - name: iRedMail | Processing debian config
   ansible.builtin.import_tasks: debian/main.yml

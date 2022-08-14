@@ -1,18 +1,18 @@
 ---
 
 - name: iRedMail | Debian | Setting hostname
-  ansible.builtin.hostname:
-    name: "{{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }}"
+  ansible.builtin.import_tasks: hostname.yml
+  when: >
+    ansible_virtualization_role is undefined or
+    ansible_virtualization_role != 'guest' or
+    'docker' not in ansible_virtualization_tech_guest
 
-- name: iRedMail | Debian | Set localhost name resolution
-  ansible.builtin.lineinfile:
-    dest: '/etc/hosts'
-    regexp: '^127.0.1.1'
-    line: "127.0.1.1 {{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }}
-    {% if IRM_CONFIG.mailserver_sub_domain != inventory_hostname %}{{ IRM_CONFIG.mailserver_sub_domain }} {% endif %}\
-    {{ inventory_hostname }} localhost"
-    state: present
-    backrefs: yes
+- name: iRedMail | Debian | Setting hostname in container
+  ansible.builtin.import_tasks: hostname_container.yml
+  when:
+    - ansible_virtualization_role is defined
+    - ansible_virtualization_role == 'guest'
+    - "'docker' in ansible_virtualization_tech_guest"
 
 - name: iRedMail | Debian | Creating directories
   ansible.builtin.file:

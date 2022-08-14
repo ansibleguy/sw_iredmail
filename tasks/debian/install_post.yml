@@ -59,9 +59,12 @@
     prompt: "You need to reboot the target system after the installation.
     Should we do this now? [yes/NO]"
   register: irm_prompt_reboot
+  when: not no_prompts
 
 - name: iRedMail | Debian | Post-Install | Rebooting the system
   ansible.builtin.reboot:
     reboot_timeout: 60
-  when: "irm_prompt_reboot.user_input in ['y', 'Y', 'YES', 'yes']"
+  when: >
+    irm_prompt_reboot.user_input in ['y', 'Y', 'YES', 'yes'] or
+    no_prompts
   changed_when: false
