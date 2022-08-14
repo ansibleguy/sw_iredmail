@@ -20,5 +20,7 @@ galaxy_info:
     - 'mailfilter'
     - 'imap'
     - 'webmail'
+    - 'email'
+    - 'smtp'
 
 collections: []
