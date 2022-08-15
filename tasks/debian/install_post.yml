@@ -48,9 +48,9 @@
 
 - name: iRedMail | Debian | Post-Install | Displaying admin-credentials and DKIM
   ansible.builtin.debug:
-    msg: "Admin-User: '{{ IRM_CONFIG.config.admin_user }}@{{ IRM_CONFIG.domain }}',
+    msg: "Admin-User: '{{ IRM_CONFIG.config.admin_user }}@{{ irm_domain }}',
       Admin-Password: '{{ IRM_CONFIG.config.admin_pwd }}' |
-      DKIM Record: 'mail._domainkey.{{ IRM_CONFIG.domain }}' (default) |
+      DKIM Record: 'mail._domainkey.{{ irm_domain }}' (default) |
       DKIM Public key: '{{ irm_dkim.stdout | replace('\n', '') | replace('\"', '') | replace(' ', '') | replace(')', '') }}' |
       More info can be found on the controller: '/tmp/{{ inventory_hostname }}_iRedMail.tips'"
 

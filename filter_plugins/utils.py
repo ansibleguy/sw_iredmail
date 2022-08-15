@@ -7,6 +7,8 @@ class FilterModule(object):
     def filters(self):
         return {
             "valid_hostname": self.valid_hostname,
+            "get_subdomain": self.get_subdomain,
+            "remove_hostname": self.remove_hostname,
         }
 
     @staticmethod
@@ -23,3 +25,11 @@ class FilterModule(object):
         expr_hostname = r'^[a-zA-Z0-9-\.]{1,253}$'
         valid_hostname = True if regex_match(expr_hostname, name) is not None else False
         return all([valid_domain, valid_hostname])
+
+    @staticmethod
+    def get_subdomain(domain: str) -> str:
+        return domain.split('.', 1)[0]
+
+    @staticmethod
+    def remove_hostname(domain: str) -> str:
+        return domain.split('.', 1)[1]

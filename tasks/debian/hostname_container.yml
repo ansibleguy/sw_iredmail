@@ -2,11 +2,11 @@
 
 - name: iRedMail | Debian | Setting hostname in container (may fail)
   ansible.builtin.hostname:
-    name: "{{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }}"
+    name: "{{ IRM_CONFIG.fqdn }}"
   ignore_errors: true
 
 - name: iRedMail | Debian | Notify user - Container hostname
   ansible.builtin.pause:
-    prompt: "You need to make sure the container hostname is set to '{{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }}'
+    prompt: "You need to make sure the container hostname is set to '{{ IRM_CONFIG.fqdn }}'
     and it can resolve it's own hostname!"
   when: not no_prompts

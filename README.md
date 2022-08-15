@@ -143,12 +143,11 @@ ansible-galaxy install -r requirements.yml
 Define the config as needed:
 ```yaml
 iredmail:
-  domain: 'template.ansibleguy.net'
-  mailserver_sub_domain: 'mail'
-  # per example: 'mail.template.ansibleguy.net' must be a valid, public dns-hostname of the server
+  fqdn: 'srv.template.ansibleguy.net'
+  # per example: 'srv.template.ansibleguy.net' must be a valid, public dns-hostname of the server
 
   nginx:  # configure the webserver settings => see: https://github.com/ansibleguy/infra_nginx
-    aliases: ['mail.ansibleguy.net']  # additional domains to add to the certificate
+    aliases: ['mail.template.ansibleguy.net']  # additional domains to add to the certificate
     ssl:
       mode: 'letsencrypt'  # or selfsigned/ca
       #  if you use 'selfsigned' or 'ca':
@@ -163,8 +162,7 @@ iredmail:
 Bare minimum example:
 ```yaml
 iredmail:
-  domain: 'template.ansibleguy.net'
-  mailserver_sub_domain: 'mail'
+  fqdn: 'srv.template.ansibleguy.net'
 ```
 
 ### Execution

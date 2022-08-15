@@ -5,8 +5,7 @@
   vars:
     no_prompts: true
     iredmail:
-      domain: 'iredmail.test.ansibleguy.net'
-      mailserver_sub_domain: 'mail'
+      fqdn: 'mail.iredmail.test.ansibleguy.net'
       # manage:
       #   sogo: true
 

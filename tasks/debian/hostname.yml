@@ -2,13 +2,13 @@
 
 - name: iRedMail | Debian | Setting hostname
   ansible.builtin.hostname:
-    name: "{{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }}"
+    name: "{{ IRM_CONFIG.fqdn }}"
 
 - name: iRedMail | Debian | Set localhost name resolution
   ansible.builtin.lineinfile:
     dest: '/etc/hosts'
     regexp: '^127.0.1.1'
-    line: "127.0.1.1 {{ IRM_CONFIG.mailserver_sub_domain }}.{{ IRM_CONFIG.domain }}
-    {% if IRM_CONFIG.mailserver_sub_domain != inventory_hostname %}{{ IRM_CONFIG.mailserver_sub_domain }} {% endif %}\
+    line: "127.0.1.1 {{ IRM_CONFIG.fqdn }}
+    {% if irm_host_sub_domain != inventory_hostname %}{{ irm_host_sub_domain }} {% endif %}\
     {{ inventory_hostname }} localhost"
     state: present

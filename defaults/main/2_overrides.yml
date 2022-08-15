@@ -14,7 +14,7 @@ defaults_overrides:
     WEB_SERVER: "'NGINX'"
 
     # basics
-    FIRST_DOMAIN: "'{{ IRM_CONFIG.domain }}'"
+    FIRST_DOMAIN: "'{{ irm_domain }}'"
     DOMAIN_ADMIN_NAME: "'{{ IRM_CONFIG.config.admin_user }}'"
     DOMAIN_ADMIN_PASSWD_PLAIN: "'{{ IRM_CONFIG.config.admin_pwd }}'"
     STORAGE_BASE_DIR: "'{{ IRM_CONFIG.config.path_storage }}'"

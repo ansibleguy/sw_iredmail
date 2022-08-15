@@ -8,7 +8,7 @@ Make sure your target system meets the [system requirements](https://docs.iredma
   - At LEAST 4GB of RAM for a low traffic setup.
   - The target system needs to have a public IP.
   - You need to have a public Domain.
-  - You might want to create a dedicated volume (_maybe use LVM_) for the data-directory - so you can easier extend/manage it.
+  - You might want to create a dedicated volume (_maybe use [LVM](https://linuxconfig.org/linux-lvm-logical-volume-manager)_) for the data-directory (_/var/vmail_) - so you can easier extend/manage it.
 
 ## Firewalling
 
@@ -52,7 +52,7 @@ If you are interested => here's a nice overview of SPF/DKIM/DMARC: [LINK](https:
 |  MX  | DOMAIN.TLD                 | 10 SRV.DOMAIN.TLD                              | -                                                                                                                                                                                                                                             |
 | TXT  | DOMAIN.TLD                 | v=spf1 mx -all                                 | -                                                                                                                                                                                                                                             |
 | TXT  | _dmarc.DOMAIN.TLD          | v=DMARC1; p=quarantine; aspf=s; adkim=s;       | You can also add a dedicated mail user to receive DMARC reports. See the 'overview' above for details. It would then look like this: 'v=DMARC1; p=quarantine; rua=mailto:ADDRESS@DOMAIN.TLD; ruf=mailto:ADDRESS@DOMAIN.TLD; aspf=s; adkim=s;' |
-| TXT  | mail._domainkey.DOMAIN.TLD | v=DKIM1; p=MIIBIjANBgkqhkiG...                 | Replace the value by YOUR DKIM record!                                                                                                                                                                                                        |
+| TXT  | mail._domainkey.DOMAIN.TLD | v=DKIM1; p=MIIBIjANBgkqhkiG...                 | Replace the value by YOUR DKIM record! To manage domain-specific dkim-records - use the scripts located at: '/usr/local/sbin/iredmail'                                                                                                        |
 | TXT  | *.DOMAIN.TLD               | v=spf1 -all                                    | Any domain/subdomain that is not used to send mails, should IMPLICITLY DENY any senders!                                                                                                                                                      |
 | PTR  | YOUR-SRV-IP | SRV.DOMAIN.TLD | You cannot set a PTR record in your DNS-Panel/management! Your internet provider/hoster has to do that. Bigger hosters will give you an option for this in their managment interface.                                                         |
 
