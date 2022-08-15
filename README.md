@@ -71,6 +71,11 @@ You can see the changes in Systemd, packages and files in this document: [Transp
 
 ## Info
 
+* **Info:** Consider using a **Mail Gateway to gain Security**!
+
+  Per example: [Proxmox Mail Gateway](https://github.com/ansibleguy/sw_proxmox_mail_gw)
+
+
 * **Note:** this role currently only supports debian-based systems
 
 
