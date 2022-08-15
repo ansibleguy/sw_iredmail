@@ -30,7 +30,7 @@ For the server to work, you must allow the following ports using your firewall:
   - DNS: 53/tcp+udp to 1.1.1.1 and 8.8.8.8 (_or whatever dns servers you are using_)
   - NTP: 123/udp to 0.debian.pool.ntp.org and 0.debian.pool.ntp.org
   - APT: 443/tcp+udp to deb.debian.org and security.debian.org (_or whatever main repository you are using_)
-- Mailing: 25/tcp to ANY
+- Mailing: 25/tcp to Internet
 - LetsEncrypt: 443/tcp+udp to acme-v02.api.letsencrypt.org and staging-v02.api.letsencrypt.org (_debug mode_)
 - ClamAV: 443/tcp+udp to database.clamav.net
 - SpamAssassin: 80/tcp, 443/tcp+udp to spamassassin.apache.org and domains listed in the [mirror list](https://spamassassin.apache.org/updates/MIRRORED.BY)
