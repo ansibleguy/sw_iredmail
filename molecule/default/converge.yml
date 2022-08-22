@@ -6,8 +6,8 @@
     no_prompts: true
     iredmail:
       fqdn: 'mail.iredmail.test.ansibleguy.net'
-      # manage:
-      #   sogo: true
+       manage:
+         sogo: true
 
       config:
         admin_user: 'postmaster'

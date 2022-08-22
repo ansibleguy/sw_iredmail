@@ -5,7 +5,7 @@ debug: false
 
 # default config => is overwritten by provided config
 defaults_irm:
-  version: '1.6.0'
+  version: '1.6.1'
 
   manage:
     # managed by setup script
@@ -48,6 +48,9 @@ defaults_irm:
         name:
         cn: 'iRedMail Certificate'
         org: 'AnsibleGuy'
+
+    headers:
+      'X-Frame-Options': 'SAMEORIGIN always'
 
   user:
     vmail_uid: 2000

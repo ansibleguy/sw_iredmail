@@ -8,8 +8,7 @@ defaults_overrides:
     USE_NFTABLES: "'{{ 'YES' if IRM_CONFIG.manage.nftables else 'NO' }}'"
     USE_NETDATA: "'{{ 'YES' if IRM_CONFIG.manage.netdata else 'NO' }}'"
     USE_ROUNDCUBE: "'{{ 'YES' if IRM_CONFIG.manage.roundcube else 'NO' }}'"
-    # USE_SOGO: "'{{ 'YES' if IRM_CONFIG.manage.sogo else 'NO' }}'"
-    USE_SOGO: "'NO'"  # currently, killing the installation script
+    USE_SOGO: "'{{ 'YES' if IRM_CONFIG.manage.sogo else 'NO' }}'"
     USE_FAIL2BAN: "'{{ 'YES' if IRM_CONFIG.manage.fail2ban else 'NO' }}'"
     WEB_SERVER: "'NGINX'"
 

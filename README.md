@@ -65,7 +65,7 @@ You can see the changes in Systemd, packages and files in this document: [Transp
   * **Default opt-outs**:
     * Package installation
       * [NetData](https://netdata.cloud) (_Monitoring/Troubleshooting Utility_)
-      * [SOGo Groupware](https://www.sogo.nu/) **WARNING: Installation fails currently - therefore not an option** 
+      * [SOGo Groupware](https://www.sogo.nu/) (_Webmail/Calendar/Contacts/Client Sync_)
     * NFTables firewall management
 
 
@@ -150,6 +150,9 @@ Define the config as needed:
 iredmail:
   fqdn: 'srv.template.ansibleguy.net'
   # per example: 'srv.template.ansibleguy.net' must be a valid, public dns-hostname of the server
+
+  manage:
+    sogo: true  # install SOGo component
 
   nginx:  # configure the webserver settings => see: https://github.com/ansibleguy/infra_nginx
     aliases: ['mail.template.ansibleguy.net']  # additional domains to add to the certificate
