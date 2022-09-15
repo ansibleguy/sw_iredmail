@@ -13,8 +13,9 @@ Role to deploy iRedMail mail servers.
 **Tested:**
 * Debian 11
 
-
 ## Source Notes
+
+**First**: I personally prefer other projects like [MailCow](https://github.com/ansibleguy/sw_mailcow) as the upgrade-process is easier and there is a bigger community.
 
 You can find the OpenSource Repository to the software here: [REPO](https://github.com/iredmail/iRedMail/)
 

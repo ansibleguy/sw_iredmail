@@ -30,6 +30,7 @@
   args:
     chdir: "{{ irm_setup_base }}"
   register: irm_setup_tips
+  changed_when: false
 
 - name: iRedMail | Debian | Post-Install | Pulling dkim public-key
   ansible.builtin.command:
@@ -37,6 +38,7 @@
   args:
     chdir: "{{ irm_setup_base }}"
   register: irm_dkim
+  changed_when: false
 
 - name: iRedMail | Debian | Post-Install | Copying setup TIPS to controller
   ansible.builtin.copy:

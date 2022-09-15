@@ -69,7 +69,9 @@
   tags: webserver
 
 - name: iRedMail | Debian | Checking if Nginx is running
-  ansible.builtin.shell: "/usr/bin/netstat -tulpn | grep -q {{ IRM_NGINX.port_plain }}"
+  ansible.builtin.shell: |
+    set -o pipefail
+    /usr/bin/netstat -tulpn | grep -q {{ IRM_NGINX.port_plain }}
   changed_when: false
 
 - name: iRedMail | Debian | Backing-up current certificates
