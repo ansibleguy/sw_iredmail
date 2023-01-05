@@ -1,6 +1,3 @@
 ---
 
-IRM_MARIADB_INSTANCE: "{{ {
-  'settings': IRM_CONFIG.database.settings,
-  'socket': IRM_CONFIG.database.socket
-} }}"  # DO NOT CHANGE!
+IRM_MARIADB_INSTANCE: "{{ {'settings': IRM_CONFIG.database.settings, 'socket': IRM_CONFIG.database.socket} }}"  # DO NOT CHANGE!
