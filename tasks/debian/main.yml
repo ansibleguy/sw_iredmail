@@ -72,6 +72,8 @@
   ansible.builtin.shell: |
     set -o pipefail
     /usr/bin/netstat -tulpn | grep -q {{ IRM_NGINX.port_plain }}
+  args:
+    executable: '/bin/bash'
   changed_when: false
 
 - name: iRedMail | Debian | Backing-up current certificates
