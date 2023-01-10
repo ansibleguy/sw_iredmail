@@ -17,6 +17,7 @@
     enabled: true
   check_mode: true
   register: irm_nftables_enabled
+  ignore_errors: true
 
 # if clamav-freshclam.service isn't able to pull updates initially the service won't start at all..
 - name: iRedMail | Debian | Install | Downloading & unpacking ClamAV initial ruleset

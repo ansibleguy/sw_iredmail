@@ -13,6 +13,7 @@
     enabled: false
     state: stopped
   when:
+    - irm_nftables_enabled.failed is undefined or not irm_nftables_enabled.failed
     - irm_nftables_enabled.changed
     - not IRM_CONFIG.manage.nftables
 
