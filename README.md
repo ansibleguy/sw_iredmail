@@ -27,6 +27,22 @@ As I currently have not got the time to do so - I analyzed the outcome of the sc
 
 You can see the changes in Systemd, packages and files in this document: [Transparency](https://github.com/ansibleguy/sw_iredmail/blob/stable/Transparency.md)
 
+## Install
+
+```bash
+ansible-galaxy install ansibleguy.sw_iredmail
+
+# or to custom role-path
+ansible-galaxy install ansibleguy.sw_iredmail --roles-path ./roles
+
+# install dependencies
+ansible-galaxy install -r requirements.yml
+```
+
+## Prerequisites
+
+See: [Prerequisites](https://github.com/ansibleguy/sw_iredmail/blob/stable/Prerequisites.md)
+
 
 ## Functionality
 
@@ -127,19 +143,6 @@ You can see the changes in Systemd, packages and files in this document: [Transp
   Therefore, I created some useful scripts to make their management easier.
 
   You can find them at: '/usr/local/sbin/iredmail'
-
-
-## Prerequisites
-
-See: [Prerequisites](https://github.com/ansibleguy/sw_iredmail/blob/stable/Prerequisites.md)
-
-## Setup
-
-For this role to work - you must install its dependencies first:
-
-```
-ansible-galaxy install -r requirements.yml
-```
 
 
 ## Usage
