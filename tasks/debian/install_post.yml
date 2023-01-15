@@ -5,7 +5,9 @@
     cmd: '/bin/bash enable_postscreen.sh'
   args:
     chdir: "{{ irm_setup_base }}/tools"
-  when: IRM_CONFIG.manage.postscreen
+  when:
+    - not ansible_check_mode
+    - IRM_CONFIG.manage.postscreen
 
 - name: iRedMail | Debian | Post-Install | Disabling NFTables service if it was before
   ansible.builtin.systemd:
@@ -32,6 +34,7 @@
     chdir: "{{ irm_setup_base }}"
   register: irm_setup_tips
   changed_when: false
+  when: not ansible_check_mode
 
 - name: iRedMail | Debian | Post-Install | Pulling dkim public-key
   ansible.builtin.command:
@@ -40,6 +43,7 @@
     chdir: "{{ irm_setup_base }}"
   register: irm_dkim
   changed_when: false
+  when: not ansible_check_mode
 
 - name: iRedMail | Debian | Post-Install | Copying setup TIPS to controller
   ansible.builtin.copy:
@@ -48,6 +52,7 @@
     mode: 0640
   delegate_to: localhost
   become: false
+  when: not ansible_check_mode
 
 - name: iRedMail | Debian | Post-Install | Displaying admin-credentials and DKIM
   ansible.builtin.debug:
@@ -56,6 +61,7 @@
       DKIM Record: 'mail._domainkey.{{ irm_domain }}' (default) |
       DKIM Public key: '{{ irm_dkim.stdout | replace('\n', '') | replace('\"', '') | replace(' ', '') | replace(')', '') }}' |
       More info can be found on the controller: '/tmp/{{ inventory_hostname }}_iRedMail.tips'"
+  when: not ansible_check_mode
 
 - name: iRedMail | Debian | Post-Install | Ask user
   ansible.builtin.pause:

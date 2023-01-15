@@ -68,6 +68,7 @@
     - 'runtime/pip3.log'
     - 'runtime/pkg.install.log'
   ignore_errors: true
+  when: not ansible_check_mode
 
 - name: iRedMail | Debian | Install | Saving sql scripts
   ansible.builtin.copy:
@@ -80,9 +81,11 @@
     - 'runtime/iredmail.sql'
     - 'runtime/add_first_domain_and_user.sql'
   ignore_errors: true
+  when: not ansible_check_mode
 
 - name: iRedMail | Debian | Install | Handling error
   ansible.builtin.import_tasks: install_error.yml
+  when: not ansible_check_mode
 
 - name: iRedMail | Debian | Install | Removing packages
   ansible.builtin.apt:
