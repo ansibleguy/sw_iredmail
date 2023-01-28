@@ -29,6 +29,9 @@
         iredmail: "{{ IRM_MARIADB_INSTANCE }}"
   when: IRM_CONFIG.manage.database
   tags: database
+  args:
+    apply:
+      tags: database
 
 - name: iRedMail | Debian | Checking if mailserver is initialized
   ansible.builtin.stat:
@@ -67,6 +70,9 @@
         iredmail: "{{ IRM_NGINX }}"
   when: IRM_CONFIG.manage.webserver
   tags: webserver
+  args:
+    apply:
+      tags: webserver
 
 - name: iRedMail | Debian | Checking if Nginx is running
   ansible.builtin.shell: |
